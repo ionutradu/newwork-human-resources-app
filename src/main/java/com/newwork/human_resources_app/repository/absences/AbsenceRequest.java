@@ -11,14 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import static com.newwork.human_resources_app.web.dto.AbsenceRequestDTO.MAX_REASON_LENGTH;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("absence_requests")
 public class AbsenceRequest {
-
-    public static final int MAX_REASON_LENGTH = 1000;
 
     @Id
     private String id;

@@ -1,6 +1,9 @@
 spring:
   application:
     name: human-resources-app
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/hr_database
 
 jwt:
   secret: x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB
