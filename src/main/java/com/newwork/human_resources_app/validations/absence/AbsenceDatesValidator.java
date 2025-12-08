@@ -1,4 +1,4 @@
-package com.newwork.human_resources_app.web.validations;
+package com.newwork.human_resources_app.validations.absence;
 
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import jakarta.validation.ConstraintValidator;

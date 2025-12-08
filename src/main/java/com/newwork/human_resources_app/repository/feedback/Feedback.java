@@ -1,6 +1,5 @@
 package com.newwork.human_resources_app.repository.feedback;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +20,7 @@ import static com.newwork.human_resources_app.web.dto.FeedbackRequestDTO.MAX_FEE
 public class Feedback {
     @Id
     private String id;
-    
+
     private String targetEmployeeId;
     private String reviewerEmployeeId;
 

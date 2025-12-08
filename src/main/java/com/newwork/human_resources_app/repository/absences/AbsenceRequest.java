@@ -1,5 +1,6 @@
 package com.newwork.human_resources_app.repository.absences;
 
+import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.time.LocalDate;
-
-import static com.newwork.human_resources_app.web.dto.AbsenceRequestDTO.MAX_REASON_LENGTH;
 
 @Data
 @Builder
@@ -28,7 +27,7 @@ public class AbsenceRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @Size(max = MAX_REASON_LENGTH)
+    @Size(max = AbsenceRequestDTO.MAX_REASON_LENGTH)
     private String reason;
 
     private AbsenceStatus status = AbsenceStatus.PENDING;

@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class EmployeeProfileService {
+public class EmployeeActionsService {
 
     private final FeedbackRepository feedbackRepository;
     private final AbsenceRepository absenceRepository;

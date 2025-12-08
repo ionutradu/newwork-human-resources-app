@@ -1,4 +1,4 @@
-package com.newwork.human_resources_app.web.validations;
+package com.newwork.human_resources_app.validations.absence;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -35,7 +35,7 @@ public class SecurityConfig {
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             return User.withUsername(employee.getEmail())
-                    .roles(employee.getRoles().toArray(new String[0]))
+                    .authorities(employee.getRoles().toArray(new String[0]))
                     .build();
         };
     }
