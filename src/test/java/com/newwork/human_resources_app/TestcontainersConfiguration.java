@@ -5,7 +5,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.weaviate.WeaviateContainer;
 
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
@@ -14,12 +13,6 @@ class TestcontainersConfiguration {
 	@ServiceConnection
 	MongoDBContainer mongoDbContainer() {
 		return new MongoDBContainer(DockerImageName.parse("mongo:latest"));
-	}
-
-	@Bean
-	@ServiceConnection
-	WeaviateContainer weaviateContainer() {
-		return new WeaviateContainer(DockerImageName.parse("semitechnologies/weaviate:latest"));
 	}
 
 }

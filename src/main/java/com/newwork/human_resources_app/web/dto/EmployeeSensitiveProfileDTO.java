@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class EmployeeSensitiveProfileDTO {
 
-    private String username;
+    private String id;
+    private String email;
     private String firstName;
     private String lastName;
 

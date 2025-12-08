@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: human-resources-app
+
+jwt:
+  secret: test-x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB

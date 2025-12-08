@@ -5,5 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Collection;
 
 public interface FeedbackRepository extends MongoRepository<Feedback, String> {
-    Collection<Feedback> findAllByUsername(String username);
+    Collection<Feedback> findAllByTargetEmployeeId(String email);
+    Collection<Feedback> findAllByReviewerEmployeeId(String email);
 }
