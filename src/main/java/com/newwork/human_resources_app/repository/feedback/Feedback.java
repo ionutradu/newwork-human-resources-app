@@ -1,6 +1,7 @@
 package com.newwork.human_resources_app.repository.feedback;
 
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +25,9 @@ public class Feedback {
     private String targetEmployeeId;
     private String reviewerEmployeeId;
 
-    @Max(MAX_FEEDBACK_LENGTH)
+    @Size(max = MAX_FEEDBACK_LENGTH)
     private String originalText;
-    @Max(MAX_FEEDBACK_LENGTH)
+    @Size(max = MAX_FEEDBACK_LENGTH)
     private String polishedText;
 
     private Instant createdAt = Instant.now();

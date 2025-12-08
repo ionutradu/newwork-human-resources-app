@@ -1,6 +1,7 @@
 package com.newwork.human_resources_app.web.employees;
 
 import com.newwork.human_resources_app.service.auth.EmployeeService;
+import com.newwork.human_resources_app.service.feedback.EmployeeProfileService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final EmployeeProfileService employeeProfileService;
     private final EmployeeMapper employeeMapper;
 
     @PostMapping
@@ -76,7 +78,7 @@ public class EmployeeController {
         var employee = employeeService.findByEmail(employeeEmail);
         var employeeId = employee.getId();
 
-        employeeService.requestAbsence(employeeId, dto);
+        employeeProfileService.requestAbsence(employeeId, dto);
 
         return ResponseEntity.accepted().build();
     }

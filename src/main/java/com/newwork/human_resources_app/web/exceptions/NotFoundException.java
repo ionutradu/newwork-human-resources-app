@@ -10,7 +10,7 @@ public class NotFoundException extends RuntimeException {
         super("Entity not found.");
     }
 
-    public NotFoundException(String id) {
-        super("Entity with id %s not found.".formatted(id));
+    public NotFoundException(String identifier) {
+        super("Entity not found by identifier %s.".formatted(identifier));
     }
 }

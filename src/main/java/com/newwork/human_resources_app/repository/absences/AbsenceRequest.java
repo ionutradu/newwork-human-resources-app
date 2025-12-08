@@ -1,6 +1,6 @@
 package com.newwork.human_resources_app.repository.absences;
 
-import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class AbsenceRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @Max(MAX_REASON_LENGTH)
+    @Size(max = MAX_REASON_LENGTH)
     private String reason;
 
     private AbsenceStatus status = AbsenceStatus.PENDING;

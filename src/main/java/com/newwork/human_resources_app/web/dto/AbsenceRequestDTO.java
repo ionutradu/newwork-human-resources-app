@@ -1,8 +1,9 @@
 package com.newwork.human_resources_app.web.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -18,7 +19,8 @@ public class AbsenceRequestDTO {
     @NotNull
     private LocalDate endDate;
 
-    @Max(MAX_REASON_LENGTH)
+    @NotBlank
+    @Size(max = MAX_REASON_LENGTH)
     private String reason;
 
 }

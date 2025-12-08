@@ -1,12 +1,10 @@
 package com.newwork.human_resources_app.service.auth;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
-import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import com.newwork.human_resources_app.service.mapper.AbsenceMapper;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
-import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +22,7 @@ import java.util.UUID;
 public class EmployeeService {
 
     private final EmployeeMapper employeeMapper;
-    private final AbsenceMapper absenceMapper;
     private final EmployeeRepository userRepository;
-    private final AbsenceRepository absenceRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PreAuthorize("hasAuthority('MANAGER')")
@@ -50,11 +46,6 @@ public class EmployeeService {
     }
 
     public Employee findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(NotFoundException::new);
-    }
-
-    public void requestAbsence(String employeeId, AbsenceRequestDTO dto) {
-        var absenceRequest = absenceMapper.toEntity(dto, employeeId);
-        absenceRepository.save(absenceRequest);
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
     }
 }

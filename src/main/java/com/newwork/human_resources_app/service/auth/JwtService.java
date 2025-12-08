@@ -48,7 +48,6 @@ public class JwtService {
         if (roles instanceof Collection<?> c) {
             return c.stream()
                     .map(Object::toString)
-                    .map(s -> "ROLE_" + s)
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toSet());
         }
