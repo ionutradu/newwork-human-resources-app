@@ -6,8 +6,11 @@ import java.math.BigDecimal;
 
 @Data
 public class EmployeeSensitiveProfileDTO {
+
     private String username;
     private String firstName;
     private String lastName;
+
     private BigDecimal monthlySalary;
+
 }
