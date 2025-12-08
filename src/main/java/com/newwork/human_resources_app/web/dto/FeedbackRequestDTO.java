@@ -1,9 +1,13 @@
 package com.newwork.human_resources_app.web.dto;
 
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FeedbackRequestDTO {
 
     public static final int MAX_FEEDBACK_LENGTH = 1000;

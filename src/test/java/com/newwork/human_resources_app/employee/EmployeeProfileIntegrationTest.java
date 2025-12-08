@@ -8,7 +8,6 @@ import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
 import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EmployeeProfileIntegrationTest {
 
-    private static final String COMMON_PASS = "ParolaSecure123!";
+    private static final String COMMON_PASS = "SecurePassword123!";
     private static final String AUTH_URL = "/auth/login";
     private static final String EMPLOYEES_URL = "/employees";
 
@@ -64,12 +63,6 @@ public class EmployeeProfileIntegrationTest {
     static void setMongoProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
-
-    @BeforeAll
-    static void setup() {
-        System.setProperty("api.version", "1.44");
-    }
-
 
     @BeforeEach
     void setupTestData() {
