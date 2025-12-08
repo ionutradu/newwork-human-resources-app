@@ -1,7 +1,8 @@
-package com.newwork.human_resources_app.web.users;
+package com.newwork.human_resources_app.web.employees;
 
 import com.newwork.human_resources_app.service.auth.EmployeeService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
+import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;
 import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,5 +64,20 @@ public class EmployeeController {
         var users = employeeService.listUsers(pageable);
         var userDTOs = users.map(employeeMapper::toEmployeePublicProfileDTO);
         return ResponseEntity.ok(userDTOs);
+    }
+
+    @PostMapping("/absences")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> requestAbsence(
+            Authentication authentication,
+            @RequestBody @Valid AbsenceRequestDTO dto) {
+        var employeeEmail = (String) authentication.getPrincipal();
+
+        var employee = employeeService.findByEmail(employeeEmail);
+        var employeeId = employee.getId();
+
+        employeeService.requestAbsence(employeeId, dto);
+
+        return ResponseEntity.accepted().build();
     }
 }
