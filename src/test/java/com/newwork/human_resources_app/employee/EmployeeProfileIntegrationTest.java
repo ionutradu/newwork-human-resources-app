@@ -1,14 +1,21 @@
 package com.newwork.human_resources_app.employee;
 
+import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
+import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
+import com.newwork.human_resources_app.repository.absences.AbsenceStatus;
+import com.newwork.human_resources_app.repository.feedback.Feedback;
+import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
+import com.newwork.human_resources_app.web.dto.AbsenceDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
-import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
+import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
-import org.jetbrains.annotations.NotNull;
+import com.newwork.human_resources_app.web.dto.FeedbackDTO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +34,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -51,6 +61,12 @@ public class EmployeeProfileIntegrationTest {
     private EmployeeRepository employeeRepository;
 
     @Autowired
+    private AbsenceRepository absenceRepository;
+
+    @Autowired
+    private FeedbackRepository feedbackRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Container
@@ -58,6 +74,7 @@ public class EmployeeProfileIntegrationTest {
 
     private Map<EmployeeRole, List<Employee>> employeesByRole;
     private Employee manager;
+    private Employee coworker;
 
     @DynamicPropertySource
     static void setMongoProperties(DynamicPropertyRegistry registry) {
@@ -80,6 +97,7 @@ public class EmployeeProfileIntegrationTest {
         employeeRepository.saveAll(allEmployees);
         employeesByRole = allEmployees.stream().collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
         manager = employeesByRole.get(EmployeeRole.MANAGER).get(0);
+        coworker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
     }
 
     @Test
@@ -105,7 +123,7 @@ public class EmployeeProfileIntegrationTest {
                 EMPLOYEES_URL + "/public",
                 HttpMethod.GET,
                 entity,
-                new ParameterizedTypeReference<Page<EmployeePublicProfileDTO>>() {
+                new ParameterizedTypeReference<Page<EmployeeProfileDTO>>() {
                 }
         );
 
@@ -116,7 +134,7 @@ public class EmployeeProfileIntegrationTest {
 
     @Test
     void testManagerCanViewSpecificUserSensitiveAndPublicData() {
-        var entity = getAuthenticationHeaders(manager.getEmail());
+        var managerEntity = getAuthenticationHeaders(manager.getEmail());
 
         var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
         var targetId = targetUser.getId();
@@ -124,7 +142,7 @@ public class EmployeeProfileIntegrationTest {
         var sensitiveResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/" + targetId,
                 HttpMethod.GET,
-                entity,
+                managerEntity,
                 EmployeeSensitiveProfileDTO.class
         );
 
@@ -136,11 +154,12 @@ public class EmployeeProfileIntegrationTest {
         assertNotNull(sensitiveDto.getMonthlySalary());
         assertEquals(targetUser.getMonthlySalary(), sensitiveDto.getMonthlySalary());
 
+        var coworkerEntity = getAuthenticationHeaders(coworker.getEmail());
         var publicResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/public/" + targetId,
                 HttpMethod.GET,
-                entity,
-                EmployeePublicProfileDTO.class
+                coworkerEntity,
+                EmployeeProfileDTO.class
         );
 
         assertEquals(HttpStatus.OK, publicResponse.getStatusCode());
@@ -156,10 +175,108 @@ public class EmployeeProfileIntegrationTest {
         var authRequest = new AuthRequestDTO("manager1@test.com", COMMON_PASS);
         var response = restTemplate.postForEntity(AUTH_URL, authRequest, AuthResponseDTO.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
 
+    @Test
+    @DisplayName("Login does not work with incorrect password")
+    void testLoginDoesNotWorkWithIncorrectPassword() {
         var authRequestWithWrongPass = new AuthRequestDTO("manager1@test.com", "wrongpassword");
         var responseWithWrongPass = restTemplate.postForEntity(AUTH_URL, authRequestWithWrongPass, AuthResponseDTO.class);
         assertEquals(HttpStatus.UNAUTHORIZED, responseWithWrongPass.getStatusCode());
+    }
+
+    @Test
+    void testManagerCanViewSpecificUserAbsences() {
+        // Arrange
+        var entity = getAuthenticationHeaders(manager.getEmail());
+        var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
+        var targetId = targetUser.getId();
+
+        var absence1 = createAbsenceRequest(targetId, LocalDate.now().plusDays(10), LocalDate.now().plusDays(15), AbsenceStatus.PENDING);
+        var absence2 = createAbsenceRequest(targetId, LocalDate.now().plusDays(20), LocalDate.now().plusDays(22), AbsenceStatus.APPROVED);
+
+        // Act
+        var sensitiveResponse = restTemplate.exchange(
+                EMPLOYEES_URL + "/" + targetId,
+                HttpMethod.GET,
+                entity,
+                EmployeeSensitiveProfileDTO.class
+        );
+
+        // Assert
+        assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
+        var sensitiveDto = sensitiveResponse.getBody();
+        assertNotNull(sensitiveDto);
+        assertNotNull(sensitiveDto.getAbsences());
+        assertEquals(2, sensitiveDto.getAbsences().size());
+
+        // Verific? dac? ID-urile absen?elor create sunt prezente în DTO-ul returnat
+        var returnedAbsenceIds = sensitiveDto.getAbsences().stream()
+                .map(AbsenceDTO::getId)
+                .collect(Collectors.toSet());
+        assertTrue(returnedAbsenceIds.contains(absence1.getId()));
+        assertTrue(returnedAbsenceIds.contains(absence2.getId()));
+    }
+
+    @Test
+    void testManagerCanViewSpecificUserFeedbacks() {
+        // Arrange
+        var entity = getAuthenticationHeaders(manager.getEmail());
+        var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
+        var coWorker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
+        var targetId = targetUser.getId();
+
+        // Creeaz? date de feedback pentru utilizatorul ?int?
+        var feedback1 = createFeedback(targetId, manager.getId(), "Feedback from Manager: Good job on the project.");
+        var feedback2 = createFeedback(targetId, coWorker.getId(), "Feedback from Coworker: Need to improve communication.");
+
+        // Act
+        var sensitiveResponse = restTemplate.exchange(
+                EMPLOYEES_URL + "/" + targetId,
+                HttpMethod.GET,
+                entity,
+                EmployeeSensitiveProfileDTO.class
+        );
+
+        // Assert
+        assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
+        var sensitiveDto = sensitiveResponse.getBody();
+        assertNotNull(sensitiveDto);
+        assertNotNull(sensitiveDto.getFeedbacks());
+        assertEquals(2, sensitiveDto.getFeedbacks().size());
+
+        // Verific? dac? ID-urile feedback-urilor create sunt prezente în DTO-ul returnat
+        var returnedFeedbackIds = sensitiveDto.getFeedbacks().stream()
+                .map(FeedbackDTO::getId)
+                .collect(Collectors.toSet());
+        assertTrue(returnedFeedbackIds.contains(feedback1.getId()));
+        assertTrue(returnedFeedbackIds.contains(feedback2.getId()));
+    }
+
+    private AbsenceRequest createAbsenceRequest(String employeeId, LocalDate start, LocalDate end, AbsenceStatus status) {
+        AbsenceRequest absence = AbsenceRequest.builder()
+                .id(UUID.randomUUID().toString())
+                .employeeId(employeeId)
+                .startDate(start)
+                .endDate(end)
+                .reason("Test Reason")
+                .status(status)
+                .build();
+        return absenceRepository.save(absence);
+    }
+
+    // NOU: Metod? helper pentru a crea un feedback
+    private Feedback createFeedback(String targetEmployeeId, String reviewerEmployeeId, String originalText) {
+        Feedback feedback = Feedback.builder()
+                .id(UUID.randomUUID().toString())
+                .targetEmployeeId(targetEmployeeId)
+                .reviewerEmployeeId(reviewerEmployeeId)
+                // Înlocuie?te AI service cu o valoare mockat?
+                .originalText(originalText)
+                .polishedText("Polished: " + originalText)
+                .createdAt(LocalDateTime.now())
+                .build();
+        return feedbackRepository.save(feedback);
     }
 
     private HttpEntity<HttpHeaders> getAuthenticationHeaders(String email) {

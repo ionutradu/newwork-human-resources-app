@@ -1,6 +1,7 @@
 package com.newwork.human_resources_app.service.mapper;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
+import com.newwork.human_resources_app.web.dto.AbsenceDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import org.mapstruct.Mapper;
 
@@ -9,6 +10,6 @@ public interface AbsenceMapper {
 
     AbsenceRequest toEntity(AbsenceRequestDTO source, String employeeId);
 
-    AbsenceRequestDTO toDTO(AbsenceRequest source);
+    AbsenceDTO toDTO(AbsenceRequest source);
 
 }

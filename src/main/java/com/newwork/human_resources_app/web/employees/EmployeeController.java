@@ -6,7 +6,6 @@ import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
-import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +62,7 @@ public class EmployeeController {
 
     @GetMapping("/public")
     @PreAuthorize("hasAuthority('COWORKER')")
-    public ResponseEntity<Page<EmployeePublicProfileDTO>> listEmployeePublicProfiles(Pageable pageable) {
+    public ResponseEntity<Page<EmployeeProfileDTO>> listEmployeePublicProfiles(Pageable pageable) {
         var users = employeeService.listUsers(pageable);
         var userDTOs = users.map(employeeMapper::toEmployeePublicProfileDTO);
         return ResponseEntity.ok(userDTOs);

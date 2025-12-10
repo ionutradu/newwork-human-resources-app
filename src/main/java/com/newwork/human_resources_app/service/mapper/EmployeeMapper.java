@@ -2,8 +2,8 @@ package com.newwork.human_resources_app.service.mapper;
 
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
-import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
-import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
+import com.newwork.human_resources_app.web.dto.AbsenceDTO;
+import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackDTO;
@@ -23,8 +23,8 @@ public interface EmployeeMapper {
 
     EmployeeRole toEntity(EmployeeRoleDTO employeeRoleDTO);
 
-    EmployeePublicProfileDTO toEmployeePublicProfileDTO(Employee employee);
+    EmployeeProfileDTO toEmployeePublicProfileDTO(Employee employee);
 
-    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(Employee employee, List<AbsenceRequestDTO> absences, List<FeedbackDTO> feedbacks);
+    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(Employee employee, List<AbsenceDTO> absences, List<FeedbackDTO> feedbacks);
 
 }

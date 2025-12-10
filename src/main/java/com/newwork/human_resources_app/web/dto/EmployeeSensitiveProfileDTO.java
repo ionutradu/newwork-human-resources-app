@@ -16,6 +16,6 @@ public class EmployeeSensitiveProfileDTO extends EmployeeProfileDTO {
 
     private BigDecimal monthlySalary;
     private List<FeedbackDTO> feedbacks;
-    private List<AbsenceResponseDTO> absences;
+    private List<AbsenceDTO> absences;
 
 }
