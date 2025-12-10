@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -27,16 +28,17 @@ import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
     private final EmployeeRepository employeeRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return email -> {
-            var employee = employeeRepository.findByEmail(email)
+        return id -> {
+            var employee = employeeRepository.findById(id)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            return User.withUsername(employee.getEmail())
+            return User.withUsername(employee.getId())
                     .authorities(employee.getRoles().stream()
                             .map(r -> new SimpleGrantedAuthority(r.name()))
                             .collect(Collectors.toSet()))
@@ -69,11 +71,13 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((req, res, excep) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
+                    .authenticationEntryPoint((req, res, excep) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
+                    .accessDeniedHandler((req, res, excep) -> res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))
                 );
 
         return http.build();

@@ -15,6 +15,7 @@ import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import com.newwork.human_resources_app.web.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,14 +42,14 @@ public class EmployeeService {
 
     @PreAuthorize("hasAuthority('MANAGER')")
     public Employee createEmployee(String email, String password, Set<EmployeeRoleDTO> roles) {
-        var user = Employee.builder()
+        var employee = Employee.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)
                 .passwordHash(passwordEncoder.encode(password))
                 .roles(employeeMapper.toRoles(roles))
                 .build();
 
-        return userRepository.save(user);
+        return userRepository.save(employee);
     }
 
     public Page<Employee> listUsers(Pageable pageable) {
@@ -59,11 +60,12 @@ public class EmployeeService {
         return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
     }
 
-    public EmployeeProfileDTO findById(String employeeId, Collection<? extends GrantedAuthority> requesterAuthorities) {
+    public EmployeeProfileDTO findById(String employeeId, String requesterId, Collection<? extends GrantedAuthority> requesterAuthorities) {
         var employee = userRepository.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
         var requesterRoles = getRequesterRoles(requesterAuthorities);
+        var requesterIsOwner = StringUtils.equals(requesterId, employeeId);
 
-        if (requesterRoles.contains(EmployeeRole.MANAGER)) {
+        if (requesterRoles.contains(EmployeeRole.MANAGER) || requesterIsOwner) {
             var absences = absenceRepository.findAllByEmployeeId(employeeId);
             var feedbacks = feedbackRepository.findAllByTargetEmployeeId(employeeId);
             return buildSensitiveProfileDTO(employee, absences, feedbacks);

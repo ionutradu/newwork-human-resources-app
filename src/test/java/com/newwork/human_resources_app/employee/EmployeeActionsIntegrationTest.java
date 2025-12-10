@@ -14,6 +14,7 @@ import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -106,21 +107,21 @@ public class EmployeeActionsIntegrationTest {
     }
 
     @Test
+    @DisplayName("Authenticated user can request absence")
     void testAuthenticatedUserCanRequestAbsence() {
-        // given authentication headers
+        // Given an employee requesting absence
         var entity = getAuthenticationHeaders(employee.getEmail());
 
-        // given DTO
         var startDate = LocalDate.now().plusDays(1);
         var endDate = startDate.plusDays(5);
         var reason = "Vacation request for summer break.";
 
         var absenceRequestDTO = new AbsenceRequestDTO(startDate, endDate, reason);
 
-        // given no absence requests
+        // Verify no absence requests in database
         assertEquals(0, absenceRepository.count());
 
-        // when calling the API
+        // When calling the absence API
         var response = restTemplate.exchange(
                 ABSENCE_URL,
                 HttpMethod.POST,
@@ -128,10 +129,10 @@ public class EmployeeActionsIntegrationTest {
                 Void.class
         );
 
-        // then response status is accepted
+        // Then absence is accepted
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
 
-        // then absence is persisted in database
+        // Then absence is persisted in database
         assertEquals(1, absenceRepository.count());
         var savedAbsence = absenceRepository.findAll().iterator().next();
         assertEquals(employee.getId(), savedAbsence.getEmployeeId());
@@ -141,21 +142,22 @@ public class EmployeeActionsIntegrationTest {
     }
 
     @Test
+    @DisplayName("Coworker can leave feedback for another employee")
     void testCoworkerCanLeaveFeedbackForAnotherEmployee() {
-        // given a Coworker token
+        // Given a coworker token
         var entity = getAuthenticationHeaders(coWorker.getEmail());
 
-        // given an Employee colleague and their feedback
+        // Given an Employee colleague and their feedback
         var targetEmployeeId = employee.getId();
         var originalFeedback = "I think you should improve your collaboration skills.";
 
         var feedbackRequestDTO = new FeedbackRequestDTO(originalFeedback);
         var url = String.format(FEEDBACK_URL_TEMPLATE, targetEmployeeId);
 
-        // given no feedbacks
+        // Verify no feedbacks in database
         assertEquals(0, feedbackRepository.count());
 
-        // when calling the feedback API
+        // When calling the feedback API
         var response = restTemplate.exchange(
                 url,
                 HttpMethod.POST,
@@ -163,10 +165,10 @@ public class EmployeeActionsIntegrationTest {
                 Void.class
         );
 
-        // then feedback is accepted
+        // Then feedback is accepted
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
 
-        // then feedback is persisted in database
+        // Then feedback is persisted in database
         assertEquals(1, feedbackRepository.count());
         var savedFeedback = feedbackRepository.findAll().iterator().next();
         assertEquals(targetEmployeeId, savedFeedback.getTargetEmployeeId());

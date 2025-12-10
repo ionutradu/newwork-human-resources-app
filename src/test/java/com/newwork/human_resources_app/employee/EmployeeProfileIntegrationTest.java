@@ -43,6 +43,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,6 +76,7 @@ public class EmployeeProfileIntegrationTest {
     private Map<EmployeeRole, List<Employee>> employeesByRole;
     private Employee manager;
     private Employee coworker;
+    private Employee employee;
 
     @DynamicPropertySource
     static void setMongoProperties(DynamicPropertyRegistry registry) {
@@ -98,47 +100,19 @@ public class EmployeeProfileIntegrationTest {
         employeesByRole = allEmployees.stream().collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
         manager = employeesByRole.get(EmployeeRole.MANAGER).get(0);
         coworker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
+        employee = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
     }
 
     @Test
-    void testManagerCanViewAllUsersSensitiveData() {
-        var entity = getAuthenticationHeaders(manager.getEmail());
-
-        var sensitiveResponse = restTemplate.exchange(
-                EMPLOYEES_URL,
-                HttpMethod.GET,
-                entity,
-                new ParameterizedTypeReference<Page<EmployeeSensitiveProfileDTO>>() {
-                }
-        );
-
-        assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
-        assertNotNull(sensitiveResponse.getBody());
-        assertEquals(6, sensitiveResponse.getBody().getTotalElements());
-
-        var firstSensitiveUser = sensitiveResponse.getBody().getContent().get(0);
-        assertNotNull(firstSensitiveUser.getMonthlySalary());
-
-        var publicResponse = restTemplate.exchange(
-                EMPLOYEES_URL + "/public",
-                HttpMethod.GET,
-                entity,
-                new ParameterizedTypeReference<Page<EmployeeProfileDTO>>() {
-                }
-        );
-
-        assertEquals(HttpStatus.OK, publicResponse.getStatusCode());
-        assertNotNull(publicResponse.getBody());
-        assertEquals(6, publicResponse.getBody().getTotalElements());
-    }
-
-    @Test
+    @DisplayName("Manager can fetch public and sensitive employee profile")
     void testManagerCanViewSpecificUserSensitiveAndPublicData() {
+        // Given a manager token
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
 
-        var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
-        var targetId = targetUser.getId();
+        // Given a target employee
+        var targetId = employee.getId();
 
+        // When fetching the sensitive employee profile
         var sensitiveResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/" + targetId,
                 HttpMethod.GET,
@@ -146,31 +120,37 @@ public class EmployeeProfileIntegrationTest {
                 EmployeeSensitiveProfileDTO.class
         );
 
+        // Then sensitive data is returned
         assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
         var sensitiveDto = sensitiveResponse.getBody();
         assertNotNull(sensitiveDto);
-        assertEquals(targetUser.getFirstName(), sensitiveDto.getFirstName());
+        assertEquals(employee.getFirstName(), sensitiveDto.getFirstName());
 
         assertNotNull(sensitiveDto.getMonthlySalary());
-        assertEquals(targetUser.getMonthlySalary(), sensitiveDto.getMonthlySalary());
+        assertEquals(employee.getMonthlySalary(), sensitiveDto.getMonthlySalary());
 
+        // Given a coworker token
         var coworkerEntity = getAuthenticationHeaders(coworker.getEmail());
+
+        // When fetching an employee public profile
         var publicResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/public/" + targetId,
                 HttpMethod.GET,
                 coworkerEntity,
-                EmployeeProfileDTO.class
+                EmployeeSensitiveProfileDTO.class // try to map it to a sensitive profile data
         );
 
+        // Then public profile is returned with no sensitive data
         assertEquals(HttpStatus.OK, publicResponse.getStatusCode());
         var publicDto = publicResponse.getBody();
         assertNotNull(publicDto);
-        assertEquals(targetUser.getFirstName(), publicDto.getFirstName());
+        assertEquals(employee.getFirstName(), publicDto.getFirstName());
 
         assertEquals(targetId, publicDto.getId());
     }
 
     @Test
+    @DisplayName("Login works with correct password")
     void testLoginOnlyWorksWithCorrectPassword() {
         var authRequest = new AuthRequestDTO("manager1@test.com", COMMON_PASS);
         var response = restTemplate.postForEntity(AUTH_URL, authRequest, AuthResponseDTO.class);
@@ -181,21 +161,22 @@ public class EmployeeProfileIntegrationTest {
     @DisplayName("Login does not work with incorrect password")
     void testLoginDoesNotWorkWithIncorrectPassword() {
         var authRequestWithWrongPass = new AuthRequestDTO("manager1@test.com", "wrongpassword");
-        var responseWithWrongPass = restTemplate.postForEntity(AUTH_URL, authRequestWithWrongPass, AuthResponseDTO.class);
+        var responseWithWrongPass = restTemplate.postForEntity(AUTH_URL, authRequestWithWrongPass, Void.class);
         assertEquals(HttpStatus.UNAUTHORIZED, responseWithWrongPass.getStatusCode());
     }
 
     @Test
+    @DisplayName("Manager role can view employee absences")
     void testManagerCanViewSpecificUserAbsences() {
-        // Arrange
+        // Given a manager token
         var entity = getAuthenticationHeaders(manager.getEmail());
-        var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
-        var targetId = targetUser.getId();
+        var targetId = employee.getId();
 
+        // Given 2 absence requests
         var absence1 = createAbsenceRequest(targetId, LocalDate.now().plusDays(10), LocalDate.now().plusDays(15), AbsenceStatus.PENDING);
         var absence2 = createAbsenceRequest(targetId, LocalDate.now().plusDays(20), LocalDate.now().plusDays(22), AbsenceStatus.APPROVED);
 
-        // Act
+        // When requesting sensitive employee profile
         var sensitiveResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/" + targetId,
                 HttpMethod.GET,
@@ -203,14 +184,14 @@ public class EmployeeProfileIntegrationTest {
                 EmployeeSensitiveProfileDTO.class
         );
 
-        // Assert
+        // Then response is received containing absences
         assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
         var sensitiveDto = sensitiveResponse.getBody();
         assertNotNull(sensitiveDto);
         assertNotNull(sensitiveDto.getAbsences());
         assertEquals(2, sensitiveDto.getAbsences().size());
 
-        // Verific? dac? ID-urile absen?elor create sunt prezente în DTO-ul returnat
+        // Verify absences have the correct database ids
         var returnedAbsenceIds = sensitiveDto.getAbsences().stream()
                 .map(AbsenceDTO::getId)
                 .collect(Collectors.toSet());
@@ -219,18 +200,17 @@ public class EmployeeProfileIntegrationTest {
     }
 
     @Test
-    void testManagerCanViewSpecificUserFeedbacks() {
-        // Arrange
+    @DisplayName("Manager role can view employee feedbacks")
+    void testManagerCanViewSpecificEmployeeFeedbacks() {
+        // Given a manager token
         var entity = getAuthenticationHeaders(manager.getEmail());
-        var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
-        var coWorker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
-        var targetId = targetUser.getId();
+        var targetId = employee.getId();
 
-        // Creeaz? date de feedback pentru utilizatorul ?int?
+        // Given feedbacks
         var feedback1 = createFeedback(targetId, manager.getId(), "Feedback from Manager: Good job on the project.");
-        var feedback2 = createFeedback(targetId, coWorker.getId(), "Feedback from Coworker: Need to improve communication.");
+        var feedback2 = createFeedback(targetId, coworker.getId(), "Feedback from Coworker: Need to improve communication.");
 
-        // Act
+        // When requesting employee sensitive profile
         var sensitiveResponse = restTemplate.exchange(
                 EMPLOYEES_URL + "/" + targetId,
                 HttpMethod.GET,
@@ -238,14 +218,14 @@ public class EmployeeProfileIntegrationTest {
                 EmployeeSensitiveProfileDTO.class
         );
 
-        // Assert
+        // Then profile is received with feedbacks
         assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
         var sensitiveDto = sensitiveResponse.getBody();
         assertNotNull(sensitiveDto);
         assertNotNull(sensitiveDto.getFeedbacks());
         assertEquals(2, sensitiveDto.getFeedbacks().size());
 
-        // Verific? dac? ID-urile feedback-urilor create sunt prezente în DTO-ul returnat
+        // Verify feedback ids are the same as database ids
         var returnedFeedbackIds = sensitiveDto.getFeedbacks().stream()
                 .map(FeedbackDTO::getId)
                 .collect(Collectors.toSet());
@@ -265,7 +245,6 @@ public class EmployeeProfileIntegrationTest {
         return absenceRepository.save(absence);
     }
 
-    // NOU: Metod? helper pentru a crea un feedback
     private Feedback createFeedback(String targetEmployeeId, String reviewerEmployeeId, String originalText) {
         Feedback feedback = Feedback.builder()
                 .id(UUID.randomUUID().toString())

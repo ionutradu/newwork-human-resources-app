@@ -31,7 +31,7 @@ public class AuthController {
             throw new BadCredentialsException();
         }
 
-        var token = jwtService.generateToken(user.getEmail(), user.getRoles());
+        var token = jwtService.generateToken(user.getId(), user.getRoles());
 
         return ResponseEntity.ok(new AuthResponseDTO(token));
     }

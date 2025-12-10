@@ -6,7 +6,6 @@ import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
-import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,30 +37,24 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('MANAGER') or #id == principal.id")
+    @PreAuthorize("hasAuthority('MANAGER') or #id == authentication.principal")
     public EmployeeProfileDTO getSensitiveUserProfile(Authentication authentication,
                                                                @PathVariable String id) {
         var authorities = authentication.getAuthorities();
-        return employeeService.findById(id, authorities);
+        var requesterId = (String) authentication.getPrincipal();
+        return employeeService.findById(id, requesterId, authorities);
     }
 
     @GetMapping("/public/{id}")
-    @PreAuthorize("hasAuthority('COWORKER') or #id == principal.id")
+    @PreAuthorize("hasAnyAuthority('COWORKER', 'MANAGER') or #id == authentication.principal")
     public EmployeeProfileDTO getPublicUserProfile(Authentication authentication, @PathVariable String id) {
         var authorities = authentication.getAuthorities();
-        return employeeService.findById(id, authorities);
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<Page<EmployeeSensitiveProfileDTO>> listEmployeeSensitiveProfiles(Pageable pageable) {
-        var users = employeeService.listUsers(pageable);
-        var userDTOs = users.map(employee -> employeeMapper.toEmployeeSensitiveProfileDTO(employee, null, null));
-        return ResponseEntity.ok(userDTOs);
+        var requesterId = (String) authentication.getPrincipal();
+        return employeeService.findById(id, requesterId, authorities);
     }
 
     @GetMapping("/public")
-    @PreAuthorize("hasAuthority('COWORKER')")
+    @PreAuthorize("hasAnyAuthority('COWORKER', 'MANAGER')")
     public ResponseEntity<Page<EmployeeProfileDTO>> listEmployeePublicProfiles(Pageable pageable) {
         var users = employeeService.listUsers(pageable);
         var userDTOs = users.map(employeeMapper::toEmployeePublicProfileDTO);

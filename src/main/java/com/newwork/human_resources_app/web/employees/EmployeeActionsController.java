@@ -30,10 +30,7 @@ public class EmployeeActionsController {
     public ResponseEntity<Void> requestAbsence(
             Authentication authentication,
             @RequestBody @Valid AbsenceRequestDTO dto) {
-        var employeeEmail = (String) authentication.getPrincipal();
-
-        var employee = employeeService.findByEmail(employeeEmail);
-        var employeeId = employee.getId();
+        var employeeId = (String) authentication.getPrincipal();
 
         employeeActionsService.requestAbsence(employeeId, dto);
 
@@ -46,10 +43,7 @@ public class EmployeeActionsController {
             Authentication authentication,
             @PathVariable("employeeId") String targetEmployeeId,
             @RequestBody @Valid FeedbackRequestDTO dto) {
-        var employeeEmail = (String) authentication.getPrincipal();
-
-        var employee = employeeService.findByEmail(employeeEmail);
-        var employeeId = employee.getId();
+        var employeeId = (String) authentication.getPrincipal();
 
         employeeActionsService.leaveFeedback(targetEmployeeId, employeeId, dto);
 

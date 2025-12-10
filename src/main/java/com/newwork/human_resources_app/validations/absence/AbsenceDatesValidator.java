@@ -15,8 +15,8 @@ public class AbsenceDatesValidator implements ConstraintValidator<ValidAbsenceDa
     @Override
     public boolean isValid(AbsenceRequestDTO dto, ConstraintValidatorContext context) {
         
-        LocalDate startDate = dto.getStartDate();
-        LocalDate endDate = dto.getEndDate();
+        var startDate = dto.getStartDate();
+        var endDate = dto.getEndDate();
 
         if (startDate == null || endDate == null) {
             return true;

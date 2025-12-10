@@ -7,12 +7,14 @@ import com.newwork.human_resources_app.config.HuggingFaceProperties;
 import io.jsonwebtoken.lang.Strings;
 import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.newwork.human_resources_app.web.dto.FeedbackRequestDTO.MAX_FEEDBACK_LENGTH;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FeedbackAiService {
@@ -32,21 +34,27 @@ public class FeedbackAiService {
 
         var input = AI_PROMPT_TEMPLATE.formatted(feedback);
 
-        var response = chatClient.generateChatCompletion(new HFChatRequest(huggingFaceProperties.getModel(), List.of(new HFMessage("user", input))));
+        try {
+            var response = chatClient.generateChatCompletion(new HFChatRequest(huggingFaceProperties.getModel(), List.of(new HFMessage("user", input))));
 
-        if (response == null || response.choices() == null || response.choices().isEmpty()) {
-            return Strings.EMPTY;
+            if (response == null || response.choices() == null || response.choices().isEmpty()) {
+                return Strings.EMPTY;
+            }
+
+            var firstChoice = response.choices().get(0);
+
+            if (firstChoice == null || firstChoice.message() == null) {
+                return Strings.EMPTY;
+            }
+
+            var content = firstChoice.message().content();
+
+            return content != null ? content.trim() : Strings.EMPTY;
+        } catch (Exception e) {
+            log.error("Feedback polishing with AI failed.", e);
         }
 
-        var firstChoice = response.choices().get(0);
-
-        if (firstChoice == null || firstChoice.message() == null) {
-            return Strings.EMPTY;
-        }
-
-        var content = firstChoice.message().content();
-
-        return content != null ? content.trim() : Strings.EMPTY;
+        return feedback;
     }
 
 }
