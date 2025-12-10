@@ -2,20 +2,20 @@ package com.newwork.human_resources_app.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeSensitiveProfileDTO {
-
-    private String id;
-    private String email;
-    private String firstName;
-    private String lastName;
+@EqualsAndHashCode(callSuper = true)
+public class EmployeeSensitiveProfileDTO extends EmployeeProfileDTO {
 
     private BigDecimal monthlySalary;
+    private List<FeedbackDTO> feedbacks;
+    private List<AbsenceResponseDTO> absences;
 
 }

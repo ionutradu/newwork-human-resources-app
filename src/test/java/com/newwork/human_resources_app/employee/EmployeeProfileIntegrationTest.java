@@ -84,7 +84,7 @@ public class EmployeeProfileIntegrationTest {
 
     @Test
     void testManagerCanViewAllUsersSensitiveData() {
-        var entity = getAuthenticationHeaders();
+        var entity = getAuthenticationHeaders(manager.getEmail());
 
         var sensitiveResponse = restTemplate.exchange(
                 EMPLOYEES_URL,
@@ -116,7 +116,7 @@ public class EmployeeProfileIntegrationTest {
 
     @Test
     void testManagerCanViewSpecificUserSensitiveAndPublicData() {
-        var entity = getAuthenticationHeaders();
+        var entity = getAuthenticationHeaders(manager.getEmail());
 
         var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
         var targetId = targetUser.getId();
@@ -162,8 +162,8 @@ public class EmployeeProfileIntegrationTest {
         assertEquals(HttpStatus.UNAUTHORIZED, responseWithWrongPass.getStatusCode());
     }
 
-    private HttpEntity<HttpHeaders> getAuthenticationHeaders() {
-        var token = authenticateAndGetToken(manager.getEmail());
+    private HttpEntity<HttpHeaders> getAuthenticationHeaders(String email) {
+        var token = authenticateAndGetToken(email);
         var headers = new HttpHeaders();
         headers.setBearerAuth(token);
         return new HttpEntity<>(headers);

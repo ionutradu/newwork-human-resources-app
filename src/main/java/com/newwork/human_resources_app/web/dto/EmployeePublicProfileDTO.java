@@ -2,15 +2,10 @@ package com.newwork.human_resources_app.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class EmployeePublicProfileDTO {
-
-    private String id;
-    private String firstName;
-    private String lastName;
-
+@EqualsAndHashCode(callSuper = true)
+public class EmployeePublicProfileDTO extends EmployeeProfileDTO {
 }

@@ -1,28 +1,42 @@
 package com.newwork.human_resources_app.service.auth;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
+import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
+import com.newwork.human_resources_app.repository.feedback.Feedback;
+import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
+import com.newwork.human_resources_app.repository.user.EmployeeRole;
 import com.newwork.human_resources_app.service.mapper.AbsenceMapper;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
+import com.newwork.human_resources_app.service.mapper.FeedbackMapper;
+import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
+import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import com.newwork.human_resources_app.web.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
 
     private final EmployeeMapper employeeMapper;
+    private final AbsenceMapper absenceMapper;
+    private final FeedbackMapper feedbackMapper;
     private final EmployeeRepository userRepository;
+    private final FeedbackRepository feedbackRepository;
+    private final AbsenceRepository absenceRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PreAuthorize("hasAuthority('MANAGER')")
@@ -41,11 +55,36 @@ public class EmployeeService {
         return userRepository.findAll(pageable);
     }
 
-    public Employee findById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
-    }
-
     public Employee findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
+    }
+
+    public EmployeeProfileDTO findById(String employeeId, Collection<? extends GrantedAuthority> requesterAuthorities) {
+        var employee = userRepository.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
+        var requesterRoles = getRequesterRoles(requesterAuthorities);
+
+        if (requesterRoles.contains(EmployeeRole.MANAGER)) {
+            var absences = absenceRepository.findAllByEmployeeId(employeeId);
+            var feedbacks = feedbackRepository.findAllByTargetEmployeeId(employeeId);
+            return buildSensitiveProfileDTO(employee, absences, feedbacks);
+        }
+
+        return employeeMapper.toEmployeePublicProfileDTO(employee);
+    }
+
+    private EmployeeSensitiveProfileDTO buildSensitiveProfileDTO(Employee employee, Collection<AbsenceRequest> absenceRequests, Collection<Feedback> feedbacks) {
+
+        var absenceDTOs = absenceRequests.stream().map(absenceMapper::toDTO).toList();
+        var feedbackDTOs = feedbacks.stream().map(feedbackMapper::toDTO).toList();
+
+        return employeeMapper.toEmployeeSensitiveProfileDTO(employee, absenceDTOs, feedbackDTOs);
+    }
+
+    private Set<EmployeeRole> getRequesterRoles(Collection<? extends GrantedAuthority> requesterAuthorities) {
+        return requesterAuthorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(roleString -> roleString.replaceFirst("ROLE_", ""))
+                .map(EmployeeRole::valueOf)
+                .collect(Collectors.toSet());
     }
 }

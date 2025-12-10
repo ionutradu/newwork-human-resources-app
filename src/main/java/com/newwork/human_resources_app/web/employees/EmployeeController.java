@@ -3,9 +3,9 @@ package com.newwork.human_resources_app.web.employees;
 import com.newwork.human_resources_app.service.auth.EmployeeService;
 import com.newwork.human_resources_app.service.feedback.EmployeeActionsService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
-import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;
+import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import jakarta.validation.Valid;
@@ -40,23 +40,24 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGER') or #id == principal.id")
-    public EmployeeSensitiveProfileDTO getSensitiveUserProfile(@PathVariable String id) {
-        var employee = employeeService.findById(id);
-        return employeeMapper.toEmployeeSensitiveProfileDTO(employee);
+    public EmployeeProfileDTO getSensitiveUserProfile(Authentication authentication,
+                                                               @PathVariable String id) {
+        var authorities = authentication.getAuthorities();
+        return employeeService.findById(id, authorities);
     }
 
     @GetMapping("/public/{id}")
     @PreAuthorize("hasAuthority('COWORKER') or #id == principal.id")
-    public EmployeePublicProfileDTO getPublicUserProfile(@PathVariable String id) {
-        var employee = employeeService.findById(id);
-        return employeeMapper.toEmployeePublicProfileDTO(employee);
+    public EmployeeProfileDTO getPublicUserProfile(Authentication authentication, @PathVariable String id) {
+        var authorities = authentication.getAuthorities();
+        return employeeService.findById(id, authorities);
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<Page<EmployeeSensitiveProfileDTO>> listEmployeeSensitiveProfiles(Pageable pageable) {
         var users = employeeService.listUsers(pageable);
-        var userDTOs = users.map(employeeMapper::toEmployeeSensitiveProfileDTO);
+        var userDTOs = users.map(employee -> employeeMapper.toEmployeeSensitiveProfileDTO(employee, null, null));
         return ResponseEntity.ok(userDTOs);
     }
 
@@ -68,18 +69,4 @@ public class EmployeeController {
         return ResponseEntity.ok(userDTOs);
     }
 
-    @PostMapping("/absence")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> requestAbsence(
-            Authentication authentication,
-            @RequestBody @Valid AbsenceRequestDTO dto) {
-        var employeeEmail = (String) authentication.getPrincipal();
-
-        var employee = employeeService.findByEmail(employeeEmail);
-        var employeeId = employee.getId();
-
-        employeeActionsService.requestAbsence(employeeId, dto);
-
-        return ResponseEntity.accepted().build();
-    }
 }

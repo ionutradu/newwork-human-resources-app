@@ -2,11 +2,14 @@ package com.newwork.human_resources_app.service.mapper;
 
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
+import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.EmployeePublicProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
+import com.newwork.human_resources_app.web.dto.FeedbackDTO;
 import org.mapstruct.Mapper;
 
+import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
@@ -22,6 +25,6 @@ public interface EmployeeMapper {
 
     EmployeePublicProfileDTO toEmployeePublicProfileDTO(Employee employee);
 
-    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(Employee employee);
+    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(Employee employee, List<AbsenceRequestDTO> absences, List<FeedbackDTO> feedbacks);
 
 }
