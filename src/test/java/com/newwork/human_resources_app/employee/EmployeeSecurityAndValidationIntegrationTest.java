@@ -7,6 +7,8 @@ import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
+import com.newwork.human_resources_app.web.dto.AbsenceActionDTO;
+import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
@@ -316,7 +318,6 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, feedbackRepository.count());
     }
 
-
     @Test
     @DisplayName("Feedback will fallback to original text if AI service is not available")
     void testFeedbackIsSavedEvenIfAiServiceFails() {
@@ -352,6 +353,48 @@ public class EmployeeSecurityAndValidationIntegrationTest {
 
         // Verify the AI client was called exactly once before throwing the exception
         verify(huggingFaceChatClient, times(1)).generateChatCompletion(any());
+    }
+
+    @Test
+    @DisplayName("Unauthenticated user is unauthorized (401)")
+    void testUnauthenticatedUserIsUnauthorized() {
+        // Given an unauthenticated request to a secure endpoint
+        var absenceRequestDTO = new AbsenceRequestDTO(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2), "Test reason");
+        var headers = new HttpHeaders();
+
+        // When calling the absence API
+        var response = restTemplate.exchange(
+                ABSENCE_URL,
+                HttpMethod.POST,
+                new HttpEntity<>(absenceRequestDTO, headers),
+                Void.class
+        );
+
+        // Then response is Unauthorized (401)
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Authenticated 'EMPLOYEE' cannot access manager endpoints")
+    void testEmployeeCannotAccessManagerEndpoint() {
+        // Given an employee token
+        var employeeToken = authenticateAndGetToken(employee.getEmail());
+        var entity = new HttpEntity<>(new HttpHeaders() {{ setBearerAuth(employeeToken); }});
+
+        // Assuming a Manager-only endpoint for processing absence:
+        var MANAGER_PROCESS_ABSENCE_URL = "/manager/absences/some-id/process";
+
+        // When employee tries to access manager endpoint
+        var processDTO = new AbsenceActionRequestDTO(AbsenceActionDTO.APPROVE);
+        var response = restTemplate.exchange(
+                MANAGER_PROCESS_ABSENCE_URL,
+                HttpMethod.POST,
+                new HttpEntity<>(processDTO, entity.getHeaders()),
+                Void.class
+        );
+
+        // Then response is Forbidden (403)
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
     private HttpEntity<HttpHeaders> getAuthenticationHeaders(String email) {

@@ -9,6 +9,8 @@ import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
+import com.newwork.human_resources_app.web.dto.AbsenceActionDTO;
+import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;

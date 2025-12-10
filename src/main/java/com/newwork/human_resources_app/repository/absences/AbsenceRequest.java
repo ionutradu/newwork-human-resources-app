@@ -23,6 +23,7 @@ public class AbsenceRequest {
     private String id;
     
     private String employeeId;
+    private String processedBy;
 
     private LocalDate startDate;
     private LocalDate endDate;
@@ -32,5 +33,6 @@ public class AbsenceRequest {
 
     private AbsenceStatus status = AbsenceStatus.PENDING;
 
+    private Instant processingDate;
     private Instant requestedAt = Instant.now();
 }
