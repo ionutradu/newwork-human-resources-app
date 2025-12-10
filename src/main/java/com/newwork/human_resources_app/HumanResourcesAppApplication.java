@@ -1,18 +1,21 @@
 package com.newwork.human_resources_app;
 
-import org.springframework.ai.vectorstore.weaviate.autoconfigure.WeaviateVectorStoreAutoConfiguration;
+import com.newwork.human_resources_app.config.HuggingFaceProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(
 		exclude = {
 				DataSourceAutoConfiguration.class,
 				HibernateJpaAutoConfiguration.class,
-				WeaviateVectorStoreAutoConfiguration.class
 		}
 )
+@EnableFeignClients
+@EnableConfigurationProperties(HuggingFaceProperties.class)
 public class HumanResourcesAppApplication {
 
 	public static void main(String[] args) {

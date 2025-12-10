@@ -4,6 +4,8 @@ import com.newwork.human_resources_app.service.auth.JwtService;
 import com.newwork.human_resources_app.service.auth.EmployeeService;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
+import com.newwork.human_resources_app.web.exceptions.BadCredentialsException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,7 +28,7 @@ public class AuthController {
         var user = employeeService.findByEmail(authRequest.getEmail());
 
         if (!passwordEncoder.matches(authRequest.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new BadCredentialsException();
         }
 
         var token = jwtService.generateToken(user.getEmail(), user.getRoles());

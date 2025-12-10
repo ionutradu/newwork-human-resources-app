@@ -21,9 +21,9 @@ public class EmployeeActionsService {
 
     @Transactional
     public Feedback leaveFeedback(String targetUserId, String reviewerUserId, FeedbackRequestDTO dto) {
-        String polishedText = aiService.polishFeedback(dto.getText());
+        var polishedText = aiService.polishFeedback(dto.getText());
         
-        Feedback feedback = new Feedback();
+        var feedback = new Feedback();
         feedback.setTargetEmployeeId(targetUserId);
         feedback.setReviewerEmployeeId(reviewerUserId);
         feedback.setOriginalText(dto.getText());

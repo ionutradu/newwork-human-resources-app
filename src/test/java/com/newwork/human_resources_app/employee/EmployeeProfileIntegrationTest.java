@@ -82,31 +82,8 @@ public class EmployeeProfileIntegrationTest {
         manager = employeesByRole.get(EmployeeRole.MANAGER).get(0);
     }
 
-    private Employee createEmployee(String email, String firstName, String lastName, EmployeeRole role, String salary) {
-        return Employee.builder()
-                .id(UUID.randomUUID().toString())
-                .email(email)
-                .firstName(firstName)
-                .lastName(lastName)
-                .passwordHash(passwordEncoder.encode(COMMON_PASS))
-                .roles(Set.of(role))
-                .monthlySalary(new BigDecimal(salary))
-                .build();
-    }
-
-    private String authenticateAndGetToken(String email) {
-        var authRequest = new AuthRequestDTO(email, COMMON_PASS);
-        var response = restTemplate.postForEntity(AUTH_URL, authRequest, AuthResponseDTO.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNotNull(response.getBody().getToken());
-
-        return response.getBody().getToken();
-    }
-
     @Test
-    void managerCanViewAllUsersSensitiveData() {
+    void testManagerCanViewAllUsersSensitiveData() {
         var entity = getAuthenticationHeaders();
 
         var sensitiveResponse = restTemplate.exchange(
@@ -138,7 +115,7 @@ public class EmployeeProfileIntegrationTest {
     }
 
     @Test
-    void managerCanViewSpecificUserSensitiveAndPublicData() {
+    void testManagerCanViewSpecificUserSensitiveAndPublicData() {
         var entity = getAuthenticationHeaders();
 
         var targetUser = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
@@ -174,11 +151,44 @@ public class EmployeeProfileIntegrationTest {
         assertEquals(targetId, publicDto.getId());
     }
 
-    @NotNull
+    @Test
+    void testLoginOnlyWorksWithCorrectPassword() {
+        var authRequest = new AuthRequestDTO("manager1@test.com", COMMON_PASS);
+        var response = restTemplate.postForEntity(AUTH_URL, authRequest, AuthResponseDTO.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        var authRequestWithWrongPass = new AuthRequestDTO("manager1@test.com", "wrongpassword");
+        var responseWithWrongPass = restTemplate.postForEntity(AUTH_URL, authRequestWithWrongPass, AuthResponseDTO.class);
+        assertEquals(HttpStatus.UNAUTHORIZED, responseWithWrongPass.getStatusCode());
+    }
+
     private HttpEntity<HttpHeaders> getAuthenticationHeaders() {
         var token = authenticateAndGetToken(manager.getEmail());
         var headers = new HttpHeaders();
         headers.setBearerAuth(token);
         return new HttpEntity<>(headers);
+    }
+
+    private Employee createEmployee(String email, String firstName, String lastName, EmployeeRole role, String salary) {
+        return Employee.builder()
+                .id(UUID.randomUUID().toString())
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
+                .passwordHash(passwordEncoder.encode(COMMON_PASS))
+                .roles(Set.of(role))
+                .monthlySalary(new BigDecimal(salary))
+                .build();
+    }
+
+    private String authenticateAndGetToken(String email) {
+        var authRequest = new AuthRequestDTO(email, COMMON_PASS);
+        var response = restTemplate.postForEntity(AUTH_URL, authRequest, AuthResponseDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getToken());
+
+        return response.getBody().getToken();
     }
 }

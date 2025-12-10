@@ -5,5 +5,19 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/hr_database
 
+huggingface:
+  model: google/gemma-3-27b-it
+  api:
+    base-url: https://router.huggingface.co/nebius
+    key: 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
+
 jwt:
   secret: x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: full
