@@ -71,7 +71,7 @@ public class EmployeeProfileIntegrationTest {
     private PasswordEncoder passwordEncoder;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
 
     private Map<EmployeeRole, List<Employee>> employeesByRole;
     private Employee manager;
@@ -250,7 +250,6 @@ public class EmployeeProfileIntegrationTest {
                 .id(UUID.randomUUID().toString())
                 .targetEmployeeId(targetEmployeeId)
                 .reviewerEmployeeId(reviewerEmployeeId)
-                // Înlocuie?te AI service cu o valoare mockat?
                 .originalText(originalText)
                 .polishedText("Polished: " + originalText)
                 .createdAt(LocalDateTime.now())

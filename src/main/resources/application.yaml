@@ -9,10 +9,10 @@ huggingface:
   model: google/gemma-3-27b-it
   api:
     base-url: https://router.huggingface.co/nebius
-    key: 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
+    key: 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 # in a real app, this would be received from a secret manager
 
 jwt:
-  secret: x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB
+  secret: x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB # in a real app, this would be received from a secret manager
 
 feign:
   client:
@@ -21,3 +21,7 @@ feign:
         connectTimeout: 5000
         readTimeout: 10000
         loggerLevel: full
+
+mongock:
+  enabled: true
+  change-logs-scan-package: com.newwork.human_resources_app.database_changelogs

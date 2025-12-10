@@ -81,7 +81,7 @@ public class EmployeeSecurityAndValidationIntegrationTest {
     private HuggingFaceChatClient huggingFaceChatClient;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
 
     private Map<EmployeeRole, List<Employee>> employeesByRole;
     private Employee manager;
@@ -319,7 +319,7 @@ public class EmployeeSecurityAndValidationIntegrationTest {
     }
 
     @Test
-    @DisplayName("Feedback will fallback to original text if AI service is not available")
+    @DisplayName("Feedback polishing will be retried 5 times, then it will fallback to original text if AI service is not available")
     void testFeedbackIsSavedEvenIfAiServiceFails() {
         // Given original feedback
         var originalFeedback = "I think you should improve your collaboration skills.";
@@ -351,8 +351,8 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertTrue(savedFeedback.getPolishedText().contains(originalFeedback),
                 "Polished text should contain the original text if AI fails.");
 
-        // Verify the AI client was called exactly once before throwing the exception
-        verify(huggingFaceChatClient, times(1)).generateChatCompletion(any());
+        // Verify the AI client was called 5 times before throwing the exception
+        verify(huggingFaceChatClient, times(5)).generateChatCompletion(any());
     }
 
     @Test

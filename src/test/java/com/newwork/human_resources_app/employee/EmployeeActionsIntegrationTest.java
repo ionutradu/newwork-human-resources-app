@@ -9,8 +9,6 @@ import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.repository.user.Employee;
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import com.newwork.human_resources_app.repository.user.EmployeeRole;
-import com.newwork.human_resources_app.web.dto.AbsenceActionDTO;
-import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
@@ -74,7 +72,7 @@ public class EmployeeActionsIntegrationTest {
     private HuggingFaceChatClient huggingFaceChatClient;
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
 
     private static final String AI_POLISHED_TEXT = "Collaboration could be strengthened through more active listening and proactive sharing of ideas during team discussions. (mocked response)";
 

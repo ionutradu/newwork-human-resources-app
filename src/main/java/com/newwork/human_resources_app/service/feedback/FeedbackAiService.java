@@ -8,6 +8,9 @@ import io.jsonwebtoken.lang.Strings;
 import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,29 +33,36 @@ public class FeedbackAiService {
                 Original text: %s
                 """;
 
+    // In a production app, another backoff policy should be used (e.g. ExponentialBackOffPolicy).
+    // For the sake of the integration test, there are only 5 attempts of 100ms fixed retry time.
+    @Retryable(
+            retryFor = Exception.class,
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 100)
+    )
     public String polishFeedback(@Max(MAX_FEEDBACK_LENGTH) String feedback) {
-
         var input = AI_PROMPT_TEMPLATE.formatted(feedback);
 
-        try {
-            var response = chatClient.generateChatCompletion(new HFChatRequest(huggingFaceProperties.getModel(), List.of(new HFMessage("user", input))));
+        var response = chatClient.generateChatCompletion(new HFChatRequest(huggingFaceProperties.getModel(), List.of(new HFMessage("user", input))));
 
-            if (response == null || response.choices() == null || response.choices().isEmpty()) {
-                return Strings.EMPTY;
-            }
-
-            var firstChoice = response.choices().get(0);
-
-            if (firstChoice == null || firstChoice.message() == null) {
-                return Strings.EMPTY;
-            }
-
-            var content = firstChoice.message().content();
-
-            return content != null ? content.trim() : Strings.EMPTY;
-        } catch (Exception e) {
-            log.error("Feedback polishing with AI failed.", e);
+        if (response == null || response.choices() == null || response.choices().isEmpty()) {
+            return Strings.EMPTY;
         }
+
+        var firstChoice = response.choices().get(0);
+
+        if (firstChoice == null || firstChoice.message() == null) {
+            return Strings.EMPTY;
+        }
+
+        var content = firstChoice.message().content();
+
+        return content != null ? content.trim() : Strings.EMPTY;
+    }
+
+    @Recover
+    public String recoverPolishFeedback(Exception e, String feedback) {
+        log.error("Feedback polishing with AI failed after all retries. Returning original feedback.", e);
 
         return feedback;
     }

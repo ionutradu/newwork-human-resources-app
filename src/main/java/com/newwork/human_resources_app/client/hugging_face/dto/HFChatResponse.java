@@ -1,4 +1,3 @@
-// src/main/java/com/newwork/human_resources_app/client/huggingface/dto/HFChatResponse.java
 package com.newwork.human_resources_app.client.hugging_face.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
