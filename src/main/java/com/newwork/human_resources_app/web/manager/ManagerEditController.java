@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,11 +36,11 @@ public class ManagerEditController {
 
     @PatchMapping("/absences/{id}")
     public ResponseEntity<AbsenceRequest> updateAbsenceRequest(
-            @PathVariable String id, 
+            @PathVariable String id,
             @RequestBody @Valid ManagerUpdateAbsenceRequestDTO request,
-            @AuthenticationPrincipal UserDetails managerDetails
+            Authentication authentication
     ) {
-        var managerId = managerDetails.getUsername();
+        var managerId = (String) authentication.getPrincipal();
         
         var updatedAbsenceRequest = managerEditService.updateAbsenceRequest(id, request, managerId);
         return ResponseEntity.ok(updatedAbsenceRequest);

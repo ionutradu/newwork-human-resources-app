@@ -10,11 +10,13 @@ import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateAbsenceReque
 import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateEmployeeDTO;
 import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateFeedbackDTO;
 import com.newwork.human_resources_app.web.exceptions.NotFoundException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@PreAuthorize("hasAuthority('MANAGER')")
 public class ManagerEditService {
 
     private final EmployeeRepository employeeRepository;
