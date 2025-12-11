@@ -55,3 +55,25 @@ The initial database migration (`_001_InitialUsersMigration.java`) creates three
 * **Monitoring and Observability**: Integrate robust metrics (e.g., Prometheus/Micrometer), distributed tracing (e.g., OpenTelemetry), and structured logging (e.g., ELK Stack) for comprehensive operational visibility in production.
 
 * **Asynchronous AI Processing**: Implement the AI feedback polishing as an asynchronous process triggered by a Kafka event, preventing the initial HTTP request from being blocked.
+
+### Backend Startup
+
+1.  Navigate to the `backend` directory.
+
+    ```bash
+    cd backend
+    ```
+
+2.  Build the project and run tests. This process ensures all dependencies are resolved and the necessary Docker containers are pulled and validated via Testcontainers.
+
+    ```bash
+    mvn clean install
+    ```
+
+3.  Run the Spring Boot application.
+
+    ```bash
+    mvn spring-boot:run
+    ```
+
+    The backend service will be available at `http://localhost:8080`.
