@@ -1,0 +1,7 @@
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#f5f7fb;border-bottom:1px solid #e6e9ef}
+.app-title{font-weight:600;color:#111}
+.app-actions{display:flex;align-items:center;gap:8px}
+.logout-btn{background:#e63946;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
+.logout-btn:hover{opacity:.95}
+.app-body{padding:18px}
+

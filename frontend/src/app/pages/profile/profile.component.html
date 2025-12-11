@@ -1,0 +1,113 @@
+<div *ngIf="loading" style="padding:12px;border:1px solid #ccc;background:#fff">Loading profile...</div>
+
+<div *ngIf="profile" class="profile-main-container">
+  <div class="profile-page-grid">
+  <div class="left-col">
+    <div class="profile-container" style="background:#fff;color:#000;border:1px solid #000;padding:12px;">
+      <form>
+    <h2>Profile</h2>
+
+      <label>ID
+        <input type="text" [(ngModel)]="profile.id" name="id" [disabled]="!isManager">
+      </label>
+
+      <label>Email
+        <input type="email" [(ngModel)]="editDto.email" name="email" [disabled]="!isManager">
+      </label>
+
+      <label>First name
+        <input type="text" [(ngModel)]="editDto.firstName" name="firstName" [disabled]="!isManager">
+      </label>
+
+      <label>Last name
+        <input type="text" [(ngModel)]="editDto.lastName" name="lastName" [disabled]="!isManager">
+      </label>
+
+      <label *ngIf="isSensitiveAccess">Monthly Salary
+        <input type="number" [(ngModel)]="editDto.monthlySalary" name="monthlySalary" [disabled]="!isManager">
+      </label>
+
+    <label *ngIf="isManager">Roles (comma separated)
+      <input type="text" [(ngModel)]="editRolesRaw" name="roles">
+    </label>
+
+      </form>
+
+      <section *ngIf="isCoworker && !isCurrentUser" class="feedback" style="margin-top:16px;">
+    <h3>Leave feedback</h3>
+    <textarea [(ngModel)]="feedbackContent" placeholder="Your feedback..."></textarea>
+    <button (click)="submitFeedback()">Submit</button>
+    <p class="msg">{{ feedbackMessage }}</p>
+  </section>
+    </div>
+  </div>
+
+  <div class="right-col">
+    <div class="profile-section absences-section" *ngIf="absences.length > 0">
+  <h3>Absences</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Reason</th>
+        <th>Start date</th>
+        <th>End date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of absences">
+        <td>
+          <ng-container *ngIf="isManager; else statusText">
+            <select [(ngModel)]="a.status" [ngModelOptions]="{standalone:true}" (change)="updateAbsenceStatus(a)">
+              <option value="PENDING">PENDING</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+            </select>
+          </ng-container>
+          <ng-template #statusText>{{ a.status }}</ng-template>
+        </td>
+        <td>{{ a.reason || '' }}</td>
+        <td>{{ formatLocalDate(a.startDate) }}</td>
+        <td>{{ formatLocalDate(a.endDate) }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="isEmployee && isCurrentUser" style="margin-top:12px;">
+        <button routerLink="/absence" class="request-absence-btn">Request absence</button>
+      </div>
+</div>
+
+<div class="profile-section feedbacks-section" *ngIf="feedbacks.length > 0">
+  <h3>Feedbacks</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Date</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of feedbacks">
+        <td>{{ f.reviewerName }}</td>
+        <td>{{ formatInstant(f.createdAt ) }}</td>
+        <td class="message-cell">{{ f.polishedText }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+  </div>
+  </div>
+
+  <div class="save-parent">
+        <div>
+        <button *ngIf="isManager || isCoworker" class="back-btn" [routerLink]="'/dashboard'">Back to user listing</button>
+    </div>
+
+    <div>
+        <button *ngIf="isManager" type="button" class="save-btn" (click)="saveManagerEdit()" [disabled]="!isManager && !isCurrentUser">Save</button>
+        <span class="save-msg">{{ editMessage }}</span>
+    </div>
+  </div>
+
+</div>

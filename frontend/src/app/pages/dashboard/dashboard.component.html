@@ -1,0 +1,10 @@
+<h2>Public Employee Profiles</h2>
+<div *ngIf="loading">Loading...</div>
+<ul *ngIf="!loading && employees.length > 0">
+  <li *ngFor="let emp of employees">
+    <a [routerLink]="['/profile', emp.id]">
+      {{ emp.firstName }} {{ emp.lastName }} ({{ emp.email }})
+    </a>
+  </li>
+</ul>
+<div *ngIf="!loading && employees.length === 0">No public profiles found.</div>

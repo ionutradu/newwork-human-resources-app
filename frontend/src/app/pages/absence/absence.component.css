@@ -1,0 +1,15 @@
+/* Absence form styling */
+form{max-width:720px;margin:18px auto;padding:18px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);font-family:Arial,Helvetica,sans-serif}
+form h2{margin:0 0 12px;font-size:20px}
+form label{display:block;margin-bottom:12px;color:#333;font-size:14px}
+form input[type="date"], form textarea{width:100%;padding:10px;border:1px solid #e2e6ef;border-radius:6px;font-size:14px}
+form textarea{min-height:180px;resize:vertical}
+form button[type="submit"]{background:#0d6efd;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer}
+form p{margin-top:10px}
+
+/* Request absence button styling (used on profile page) */
+.request-absence-btn{background:#198754;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
+.request-absence-btn:hover{opacity:.95}
+
+.error-list{margin-top:10px;color:#b00020}
+.error-list li{margin:6px 0}
