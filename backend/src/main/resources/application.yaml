@@ -9,7 +9,7 @@ huggingface:
   model: google/gemma-3-27b-it
   api:
     base-url: https://router.huggingface.co/nebius
-    key: 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 # in a real app, this would be received from a secret manager
+    key: tobeprovided # in a real app, this would be received from a secret manager
 
 jwt:
   secret: x$z8A#rQ9Aj5V%oD3!p@T&U2wY7kL4eB # in a real app, this would be received from a secret manager
