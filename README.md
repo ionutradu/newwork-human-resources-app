@@ -1,19 +1,19 @@
 # Human Resources App - Newwork
 
-Aplicație completă pentru resurse umane (Human Resources - Newwork).
+A complete Human Resources application.
 
-Proiectul este structurat în două submodule principale, care se regăsesc în directoarele `backend/` și `frontend/`.
+The project is structured into two main submodules, located in the `backend/` and `frontend/` directories.
 
 ## 1. Backend
 
-Serviciul backend (denumit `human-resources-app`) este construit pe platforma **Java/Spring Boot** și utilizează **MongoDB** ca bază de date.
+The backend service (named `human-resources-app`) is built on the **Java/Spring Boot** platform and uses **MongoDB** as its database.
 
-Pentru detalii complete despre configurare, rulare, servicii și dependențe, accesați:
-[Documentația Backend (backend/README.md)](backend/README.md)
+For complete details on configuration, running, services, and dependencies, please visit:
+[Backend Documentation (backend/README.md)](backend/README.md)
 
 ## 2. Frontend
 
-Aplicația web de tip single-page (SPA) este construită cu **Angular CLI versiunea 21.0.3**.
+The single-page web application (SPA) is built with **Angular CLI version 21.0.3**.
 
-Pentru instrucțiuni detaliate despre medii de dezvoltare, comenzi de rulare, construire (build) și teste, accesați:
-[Documentația Frontend (frontend/README.md)](frontend/README.md)
+For detailed instructions on development environments, run commands, building, and testing, please visit:
+[Frontend Documentation (frontend/README.md)](frontend/README.md)
