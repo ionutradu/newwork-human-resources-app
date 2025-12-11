@@ -36,7 +36,7 @@ public class EmployeeService {
     private final FeedbackRepository feedbackRepository;
     private final AbsenceRepository absenceRepository;
 
-    public Page<Employee> listUsers(Pageable pageable) {
+    public Page<Employee> listEmployees(Pageable pageable) {
         return employeeRepository.findAll(pageable);
     }
 

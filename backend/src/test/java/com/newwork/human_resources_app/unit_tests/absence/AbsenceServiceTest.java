@@ -10,6 +10,7 @@ import com.newwork.human_resources_app.shared.dto.absence.AbsenceRequestDTO;
 import com.newwork.human_resources_app.shared.exception.NotFoundException;
 import com.newwork.human_resources_app.shared.mapper.AbsenceMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -63,6 +64,7 @@ class AbsenceServiceTest {
     }
 
     @Test
+    @DisplayName("Can create absence request")
     void createAbsenceRequest_Success() {
         when(absenceMapper.toEntity(any(AbsenceRequestDTO.class), eq(EMPLOYEE_ID))).thenReturn(absenceRequest);
         when(absenceRepository.save(any(AbsenceRequest.class))).thenReturn(absenceRequest);

@@ -16,6 +16,7 @@ import com.newwork.human_resources_app.shared.mapper.AbsenceMapper;
 import com.newwork.human_resources_app.shared.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.shared.mapper.FeedbackMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -88,6 +89,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Searching employee by email searches repository and returns the entity")
     void findByEmail_Found_ReturnsEmployee() {
         // Arrange
         when(employeeRepository.findByEmail(EMPLOYEE_EMAIL)).thenReturn(Optional.of(targetEmployee));
@@ -102,6 +104,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Throw not found exception when employee not found by email")
     void findByEmail_NotFound_ThrowsNotFoundException() {
         // Arrange
         when(employeeRepository.findByEmail(EMPLOYEE_EMAIL)).thenReturn(Optional.empty());
@@ -114,13 +117,14 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void listUsers_ReturnsPagedEmployees() {
+    @DisplayName("List paged employees")
+    void listEmployees_ReturnsPagedEmployees() {
         // Arrange
         var employeePage = new PageImpl<>(List.of(targetEmployee), pageable, 1);
         when(employeeRepository.findAll(pageable)).thenReturn(employeePage);
 
         // Act
-        var result = employeeService.listUsers(pageable);
+        var result = employeeService.listEmployees(pageable);
 
         // Assert
         assertFalse(result.isEmpty());
@@ -129,6 +133,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Manager can request sensitive employee profile")
     void findById_RequesterIsManager_ReturnsSensitiveDTO() {
         // Arrange
         var managerAuthorities = List.of(new SimpleGrantedAuthority("ROLE_" + EmployeeRole.MANAGER.name()));
@@ -158,6 +163,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Employees can query their own sensitive profile")
     void findById_RequesterIsOwner_ReturnsSensitiveDTO() {
         // Arrange
         var employeeAuthorities = List.of(new SimpleGrantedAuthority("ROLE_" + EmployeeRole.EMPLOYEE.name()));
@@ -187,6 +193,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Coworker can query public employee profile")
     void findById_RequesterIsCoworker_ReturnsPublicDTO() {
         // Arrange
         var coworkerAuthorities = List.of(new SimpleGrantedAuthority("ROLE_" + EmployeeRole.COWORKER.name()));
@@ -208,6 +215,7 @@ class EmployeeServiceTest {
     }
 
     @Test
+    @DisplayName("Throw not found exception when employee not found by manager")
     void findById_EmployeeNotFound_ThrowsNotFoundException() {
         // Arrange
         var managerAuthorities = List.of(new SimpleGrantedAuthority("ROLE_" + EmployeeRole.MANAGER.name()));

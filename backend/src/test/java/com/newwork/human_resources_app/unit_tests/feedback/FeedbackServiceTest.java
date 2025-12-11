@@ -9,6 +9,7 @@ import com.newwork.human_resources_app.shared.dto.FeedbackDTO;
 import com.newwork.human_resources_app.shared.dto.FeedbackRequestDTO;
 import com.newwork.human_resources_app.shared.mapper.FeedbackMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,6 +55,7 @@ class FeedbackServiceTest {
     }
 
     @Test
+    @DisplayName("Add feedback with text polishing via AI service")
     void addFeedback_Success_WithPolishing() {
         // Arrange
         when(feedbackAiService.polishFeedback(RAW_CONTENT)).thenReturn(POLISHED_CONTENT);

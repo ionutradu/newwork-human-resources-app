@@ -43,7 +43,7 @@ public class EmployeeController {
     @GetMapping("/public")
     @PreAuthorize("hasAnyAuthority('COWORKER', 'MANAGER')")
     public ResponseEntity<Page<EmployeeProfileDTO>> listEmployeePublicProfiles(Pageable pageable) {
-        var users = employeeService.listUsers(pageable);
+        var users = employeeService.listEmployees(pageable);
         var userDTOs = users.map(employeeMapper::toEmployeePublicProfileDTO);
         return ResponseEntity.ok(userDTOs);
     }
