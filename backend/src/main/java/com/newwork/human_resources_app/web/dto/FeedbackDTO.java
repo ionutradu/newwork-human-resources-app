@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FeedbackDTO {
     String id;
-    String reviewerEmployeeId;
-    String originalText;
+    String reviewerName;
     String polishedText;
     LocalDateTime createdAt;
 }

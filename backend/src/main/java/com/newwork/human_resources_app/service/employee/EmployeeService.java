@@ -17,6 +17,7 @@ import com.newwork.human_resources_app.web.exceptions.NotFoundException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ public class EmployeeService {
     private final EmployeeMapper employeeMapper;
     private final AbsenceMapper absenceMapper;
     private final FeedbackMapper feedbackMapper;
-    private final EmployeeRepository userRepository;
+    private final EmployeeRepository employeeRepository;
     private final FeedbackRepository feedbackRepository;
     private final AbsenceRepository absenceRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,15 +50,17 @@ public class EmployeeService {
                         .roles(employeeMapper.toRoles(roles))
                         .build();
 
-        return userRepository.save(employee);
+        return employeeRepository.save(employee);
     }
 
     public Page<Employee> listUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+        return employeeRepository.findAll(pageable);
     }
 
     public Employee findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(email));
+        return employeeRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(email));
     }
 
     public EmployeeProfileDTO findById(
@@ -65,7 +68,7 @@ public class EmployeeService {
             String requesterId,
             Collection<? extends GrantedAuthority> requesterAuthorities) {
         var employee =
-                userRepository
+                employeeRepository
                         .findById(employeeId)
                         .orElseThrow(() -> new NotFoundException(employeeId));
         var requesterRoles = getRequesterRoles(requesterAuthorities);
@@ -85,8 +88,21 @@ public class EmployeeService {
             Collection<AbsenceRequest> absenceRequests,
             Collection<Feedback> feedbacks) {
 
+        var reviewerIds =
+                feedbacks.stream().map(Feedback::getReviewerEmployeeId).collect(Collectors.toSet());
+        var employeeById =
+                employeeRepository.findAllById(reviewerIds).stream()
+                        .collect(Collectors.toMap(Employee::getId, Function.identity()));
+
         var absenceDTOs = absenceRequests.stream().map(absenceMapper::toDTO).toList();
-        var feedbackDTOs = feedbacks.stream().map(feedbackMapper::toDTO).toList();
+        var feedbackDTOs =
+                feedbacks.stream()
+                        .map(
+                                feedback ->
+                                        feedbackMapper.toDTO(
+                                                feedback,
+                                                employeeById.get(feedback.getReviewerEmployeeId())))
+                        .toList();
 
         return employeeMapper.toEmployeeSensitiveProfileDTO(employee, absenceDTOs, feedbackDTOs);
     }

@@ -280,7 +280,7 @@ public class EmployeeProfileIntegrationTest {
 
     private AbsenceRequest createAbsenceRequest(
             String employeeId, LocalDate start, LocalDate end, AbsenceStatus status) {
-        AbsenceRequest absence =
+        var absence =
                 AbsenceRequest.builder()
                         .id(UUID.randomUUID().toString())
                         .employeeId(employeeId)
@@ -294,7 +294,7 @@ public class EmployeeProfileIntegrationTest {
 
     private Feedback createFeedback(
             String targetEmployeeId, String reviewerEmployeeId, String originalText) {
-        Feedback feedback =
+        var feedback =
                 Feedback.builder()
                         .id(UUID.randomUUID().toString())
                         .targetEmployeeId(targetEmployeeId)

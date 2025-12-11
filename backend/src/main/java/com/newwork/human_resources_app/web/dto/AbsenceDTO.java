@@ -13,4 +13,11 @@ public class AbsenceDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String reason;
+    private AbsenceStatusDTO status;
+
+    public enum AbsenceStatusDTO {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
 }

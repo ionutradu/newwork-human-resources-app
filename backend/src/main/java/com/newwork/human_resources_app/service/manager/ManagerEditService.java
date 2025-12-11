@@ -42,6 +42,7 @@ public class ManagerEditService {
 
         Optional.ofNullable(dto.getFirstName()).ifPresent(employee::setFirstName);
         Optional.ofNullable(dto.getLastName()).ifPresent(employee::setLastName);
+        Optional.ofNullable(dto.getEmail()).ifPresent(employee::setEmail);
         Optional.ofNullable(dto.getMonthlySalary()).ifPresent(employee::setMonthlySalary);
         Optional.ofNullable(dto.getRoles()).ifPresent(employee::setRoles);
 
