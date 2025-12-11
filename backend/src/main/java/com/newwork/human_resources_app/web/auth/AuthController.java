@@ -1,12 +1,10 @@
 package com.newwork.human_resources_app.web.auth;
 
-import com.newwork.human_resources_app.repository.user.EmployeeRole;
 import com.newwork.human_resources_app.service.auth.JwtService;
 import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
-import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.exceptions.BadCredentialsException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
