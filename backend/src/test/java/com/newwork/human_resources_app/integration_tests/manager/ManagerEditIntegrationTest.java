@@ -1,4 +1,4 @@
-package com.newwork.human_resources_app.manager;
+package com.newwork.human_resources_app.integration_tests.manager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
