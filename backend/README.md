@@ -19,19 +19,19 @@ The backend is a Spring Boot application designed using modern engineering princ
 * **Retry Mechanism**: The service implements a simple retry mechanism for the external `polishFeedback` service call. This is currently set up for rapid local testing. In a production environment, this would be replaced by a robust, asynchronous solution using an **Exponential Backoff Policy** or a Circuit Breaker pattern (e.g., Resilience4j) to handle transient API failures gracefully and prevent resource exhaustion.
 * **Database Migration**: **Mongock** is employed for managing non-SQL database changes and script-based initial data migration.
 * **Hardcoded secrets**: Secrets are hardcoded in `application.yaml` for easing local development and testing. They must be moved to an external secured storage provider.
+* **Password Hashing:** Passwords are securely hashed using **BCryptPasswordEncoder**, an industry-standard algorithm that utilizes adaptive hashing (salting and stretching) to prevent brute-force attacks.
 
 ### Technology Stack
 
-| Category | Key Technologies Used | Note |
-| :--- | :--- | :--- |
-| **Core Framework** | **Spring Boot 3.x** | Core framework used across the service. |
-| **Web/API** | **Spring Web / REST**, **Jackson**, **JWT** | RESTful controllers, global exception handling, JSON (de)serialization, and token-based authentication. |
-| **Database** | **MongoDB**, **Spring Data MongoDB** | Used for document modeling and managing CRUD operations/aggregation pipelines. |
-| **Data & Mapping** | **Lombok**, **MapStruct** | Boilerplate reduction and efficient DTO-entity mapping. |
-| **Testing** | **Testcontainers**, **JUnit 5** | Comprehensive integration testing for MongoDB and unit tests. |
-| **Security** | **JWT**, **Keycloak** (Architectural) | Token-based authentication. **Keycloak** is an architectural consideration for enterprise-grade AuthN/AuthZ provider integration. |
-| **Advanced Data Handling** | **Redis / Redisson** (Architectural) | Used for demonstrating expertise in implementing caching layers and distributed locks. |
-| **Relational Expertise** | **Spring Data JPA, Flyway, Hasura** (Architectural) | Demonstrates broader experience with SQL database migrations (**Flyway**), ORM (**Spring Data JPA**), and modern data/GraphQL platforms (**Hasura**). |
+| Category                                      | Key Technologies Used | Note                                                                                                                                                                                                                    |
+|:----------------------------------------------| :--- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Core Framework**                            | **Spring Boot 3.x** | Core framework used across the service.                                                                                                                                                                                 |
+| **Web/API**                                   | **Spring Web / REST**, **Jackson**, **JWT** | RESTful controllers, global exception handling, JSON (de)serialization, and token-based authentication.                                                                                                                 |
+| **Database**                                  | **MongoDB**, **Spring Data MongoDB** | Used for document modeling and managing CRUD operations/aggregation pipelines.                                                                                                                                          |
+| **Data & Mapping**                            | **Lombok**, **MapStruct** | Boilerplate reduction and efficient DTO-entity mapping.                                                                                                                                                                 |
+| **Testing**                                   | **Testcontainers**, **JUnit 5** | Comprehensive integration testing for MongoDB and unit tests.                                                                                                                                                           |
+| **Security**                                  | **JWT** | **JWT** (JSON Web Tokens) and Spring Security configuration.                                                                                                                                                                                              |
+| **Asynchronous Communication (Event-Driven)** | **Apache Kafka** | **Kafka** is used to implement an Event-Driven Architecture (EDA). This is showcased by the `KafkaEventProducerService` which emits events such as `AbsenceCreatedEvent` and `FeedbackAddedEvent` for decoupled processing. |
 
 ### Default Application Users
 
