@@ -1,5 +1,10 @@
 package com.newwork.human_resources_app.manager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
 import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
 import com.newwork.human_resources_app.repository.absences.AbsenceStatus;
@@ -13,6 +18,14 @@ import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
 import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateAbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateEmployeeDTO;
 import com.newwork.human_resources_app.web.dto.manager.ManagerUpdateFeedbackDTO;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,20 +43,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ManagerEditIntegrationTest {
@@ -52,20 +51,15 @@ public class ManagerEditIntegrationTest {
     private static final String AUTH_URL = "/auth/login";
     private static final String MANAGER_URL = "/manager";
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    @Autowired private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private AbsenceRepository absenceRepository;
+    @Autowired private AbsenceRepository absenceRepository;
 
-    @Autowired
-    private FeedbackRepository feedbackRepository;
+    @Autowired private FeedbackRepository feedbackRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
@@ -85,22 +79,43 @@ public class ManagerEditIntegrationTest {
         absenceRepository.deleteAll();
         feedbackRepository.deleteAll();
 
-        var allEmployees = List.of(
-                createEmployee("manager1@test.com", "Manager", "One", Set.of(EmployeeRole.MANAGER), "10000.00"),
-                createEmployee("coworker1@test.com", "CoWorker", "One", Set.of(EmployeeRole.COWORKER), "5000.00"),
-                createEmployee("employee1@test.com", "Employee", "One", Set.of(EmployeeRole.EMPLOYEE), "3000.00")
-        );
+        var allEmployees =
+                List.of(
+                        createEmployee(
+                                "manager1@test.com",
+                                "Manager",
+                                "One",
+                                Set.of(EmployeeRole.MANAGER),
+                                "10000.00"),
+                        createEmployee(
+                                "coworker1@test.com",
+                                "CoWorker",
+                                "One",
+                                Set.of(EmployeeRole.COWORKER),
+                                "5000.00"),
+                        createEmployee(
+                                "employee1@test.com",
+                                "Employee",
+                                "One",
+                                Set.of(EmployeeRole.EMPLOYEE),
+                                "3000.00"));
 
         employeeRepository.saveAll(allEmployees);
-        Map<EmployeeRole, List<Employee>> employeesByRole = allEmployees.stream()
-                .collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
+        Map<EmployeeRole, List<Employee>> employeesByRole =
+                allEmployees.stream()
+                        .collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
 
         manager = employeesByRole.get(EmployeeRole.MANAGER).get(0);
         coworker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
         employee = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
     }
 
-    private Employee createEmployee(String email, String firstName, String lastName, Set<EmployeeRole> roles, String salary) {
+    private Employee createEmployee(
+            String email,
+            String firstName,
+            String lastName,
+            Set<EmployeeRole> roles,
+            String salary) {
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)
@@ -112,27 +127,31 @@ public class ManagerEditIntegrationTest {
                 .build();
     }
 
-    private AbsenceRequest createAbsenceRequest(String employeeId, LocalDate start, LocalDate end, AbsenceStatus status) {
-        AbsenceRequest absence = AbsenceRequest.builder()
-                .id(UUID.randomUUID().toString())
-                .employeeId(employeeId)
-                .startDate(start)
-                .endDate(end)
-                .reason("Test Reason")
-                .status(status)
-                .build();
+    private AbsenceRequest createAbsenceRequest(
+            String employeeId, LocalDate start, LocalDate end, AbsenceStatus status) {
+        AbsenceRequest absence =
+                AbsenceRequest.builder()
+                        .id(UUID.randomUUID().toString())
+                        .employeeId(employeeId)
+                        .startDate(start)
+                        .endDate(end)
+                        .reason("Test Reason")
+                        .status(status)
+                        .build();
         return absenceRepository.save(absence);
     }
 
-    private Feedback createFeedback(String targetEmployeeId, String reviewerEmployeeId, String originalText) {
-        Feedback feedback = Feedback.builder()
-                .id(UUID.randomUUID().toString())
-                .targetEmployeeId(targetEmployeeId)
-                .reviewerEmployeeId(reviewerEmployeeId)
-                .originalText(originalText)
-                .polishedText("Polished: " + originalText)
-                .createdAt(LocalDateTime.now())
-                .build();
+    private Feedback createFeedback(
+            String targetEmployeeId, String reviewerEmployeeId, String originalText) {
+        Feedback feedback =
+                Feedback.builder()
+                        .id(UUID.randomUUID().toString())
+                        .targetEmployeeId(targetEmployeeId)
+                        .reviewerEmployeeId(reviewerEmployeeId)
+                        .originalText(originalText)
+                        .polishedText("Polished: " + originalText)
+                        .createdAt(LocalDateTime.now())
+                        .build();
         return feedbackRepository.save(feedback);
     }
 
@@ -158,28 +177,39 @@ public class ManagerEditIntegrationTest {
     @DisplayName("Manager can update employee details")
     void testManagerCanUpdateEmployee() {
         // Given
-        var employeeToUpdate = employeeRepository.save(createEmployee("old.email@test.com", "OldName", "OldSurname", Set.of(EmployeeRole.EMPLOYEE), "1000.00"));
+        var employeeToUpdate =
+                employeeRepository.save(
+                        createEmployee(
+                                "old.email@test.com",
+                                "OldName",
+                                "OldSurname",
+                                Set.of(EmployeeRole.EMPLOYEE),
+                                "1000.00"));
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateEmployeeDTO.builder()
-                .firstName("NewName")
-                .monthlySalary(new BigDecimal("1500.50"))
-                .roles(Set.of(EmployeeRole.COWORKER, EmployeeRole.EMPLOYEE))
-                .build();
+        var updateRequest =
+                ManagerUpdateEmployeeDTO.builder()
+                        .firstName("NewName")
+                        .monthlySalary(new BigDecimal("1500.50"))
+                        .roles(Set.of(EmployeeRole.COWORKER, EmployeeRole.EMPLOYEE))
+                        .build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                Employee.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        Employee.class);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var updatedEmployee = response.getBody();
         assertNotNull(updatedEmployee);
         assertEquals("NewName", updatedEmployee.getFirstName());
-        assertEquals("OldSurname", updatedEmployee.getLastName(), "LastName should remain the same if not provided");
+        assertEquals(
+                "OldSurname",
+                updatedEmployee.getLastName(),
+                "LastName should remain the same if not provided");
         assertEquals(new BigDecimal("1500.50"), updatedEmployee.getMonthlySalary());
         assertTrue(updatedEmployee.getRoles().contains(EmployeeRole.COWORKER));
 
@@ -193,17 +223,15 @@ public class ManagerEditIntegrationTest {
         // Given
         var employeeToUpdate = employee;
         var coworkerEntity = getAuthenticationHeaders(coworker.getEmail());
-        var updateRequest = ManagerUpdateEmployeeDTO.builder()
-                .firstName("IllegalUpdate")
-                .build();
+        var updateRequest = ManagerUpdateEmployeeDTO.builder().firstName("IllegalUpdate").build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -218,17 +246,15 @@ public class ManagerEditIntegrationTest {
         // Given
         var nonExistentId = "non-existent-id";
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateEmployeeDTO.builder()
-                .firstName("Test")
-                .build();
+        var updateRequest = ManagerUpdateEmployeeDTO.builder().firstName("Test").build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/employees/" + nonExistentId,
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/employees/" + nonExistentId,
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -240,17 +266,18 @@ public class ManagerEditIntegrationTest {
         // Given
         var employeeToUpdate = employee;
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var invalidRequest = ManagerUpdateEmployeeDTO.builder()
-                .monthlySalary(new BigDecimal("-10.00")) // Invalid: must be positive
-                .build();
+        var invalidRequest =
+                ManagerUpdateEmployeeDTO.builder()
+                        .monthlySalary(new BigDecimal("-10.00")) // Invalid: must be positive
+                        .build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(invalidRequest, managerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/employees/" + employeeToUpdate.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(invalidRequest, managerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -260,26 +287,33 @@ public class ManagerEditIntegrationTest {
     @DisplayName("Manager can update absence request status and sets processedBy")
     void testManagerCanUpdateAbsenceRequestStatus() {
         // Given
-        var absenceRequest = createAbsenceRequest(employee.getId(), LocalDate.now().plusDays(1), LocalDate.now().plusDays(5), AbsenceStatus.PENDING);
+        var absenceRequest =
+                createAbsenceRequest(
+                        employee.getId(),
+                        LocalDate.now().plusDays(1),
+                        LocalDate.now().plusDays(5),
+                        AbsenceStatus.PENDING);
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateAbsenceRequestDTO.builder()
-                .status(AbsenceStatus.APPROVED)
-                .build();
+        var updateRequest =
+                ManagerUpdateAbsenceRequestDTO.builder().status(AbsenceStatus.APPROVED).build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/absences/" + absenceRequest.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                AbsenceRequest.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/absences/" + absenceRequest.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        AbsenceRequest.class);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var updatedAbsence = response.getBody();
         assertNotNull(updatedAbsence);
         assertEquals(AbsenceStatus.APPROVED, updatedAbsence.getStatus());
-        assertEquals(manager.getId(), updatedAbsence.getProcessedBy(), "ProcessedBy should be the manager's ID");
+        assertEquals(
+                manager.getId(),
+                updatedAbsence.getProcessedBy(),
+                "ProcessedBy should be the manager's ID");
 
         var absenceInDb = absenceRepository.findById(absenceRequest.getId()).orElseThrow();
         assertEquals(AbsenceStatus.APPROVED, absenceInDb.getStatus());
@@ -289,19 +323,23 @@ public class ManagerEditIntegrationTest {
     @DisplayName("Non-manager cannot update absence request")
     void testNonManagerCannotUpdateAbsenceRequest() {
         // Given
-        var absenceRequest = createAbsenceRequest(employee.getId(), LocalDate.now().plusDays(1), LocalDate.now().plusDays(5), AbsenceStatus.PENDING);
+        var absenceRequest =
+                createAbsenceRequest(
+                        employee.getId(),
+                        LocalDate.now().plusDays(1),
+                        LocalDate.now().plusDays(5),
+                        AbsenceStatus.PENDING);
         var coworkerEntity = getAuthenticationHeaders(coworker.getEmail());
-        var updateRequest = ManagerUpdateAbsenceRequestDTO.builder()
-                .status(AbsenceStatus.APPROVED)
-                .build();
+        var updateRequest =
+                ManagerUpdateAbsenceRequestDTO.builder().status(AbsenceStatus.APPROVED).build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/absences/" + absenceRequest.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/absences/" + absenceRequest.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -316,17 +354,16 @@ public class ManagerEditIntegrationTest {
         // Given
         var nonExistentId = "non-existent-absence-id";
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateAbsenceRequestDTO.builder()
-                .status(AbsenceStatus.APPROVED)
-                .build();
+        var updateRequest =
+                ManagerUpdateAbsenceRequestDTO.builder().status(AbsenceStatus.APPROVED).build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/absences/" + nonExistentId,
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/absences/" + nonExistentId,
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -336,29 +373,38 @@ public class ManagerEditIntegrationTest {
     @DisplayName("Manager can update feedback text")
     void testManagerCanUpdateFeedback() {
         // Given
-        var feedback = createFeedback(employee.getId(), coworker.getId(), "Needs improvement in X.");
+        var feedback =
+                createFeedback(employee.getId(), coworker.getId(), "Needs improvement in X.");
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateFeedbackDTO.builder()
-                .polishedText("Revised: Great job overall. Area X is a growth opportunity.")
-                .build();
+        var updateRequest =
+                ManagerUpdateFeedbackDTO.builder()
+                        .polishedText("Revised: Great job overall. Area X is a growth opportunity.")
+                        .build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/feedbacks/" + feedback.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                Feedback.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/feedbacks/" + feedback.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        Feedback.class);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         var updatedFeedback = response.getBody();
         assertNotNull(updatedFeedback);
-        assertEquals("Needs improvement in X.", updatedFeedback.getOriginalText(), "Original text should be preserved");
-        assertEquals("Revised: Great job overall. Area X is a growth opportunity.", updatedFeedback.getPolishedText());
+        assertEquals(
+                "Needs improvement in X.",
+                updatedFeedback.getOriginalText(),
+                "Original text should be preserved");
+        assertEquals(
+                "Revised: Great job overall. Area X is a growth opportunity.",
+                updatedFeedback.getPolishedText());
 
         var feedbackInDb = feedbackRepository.findById(feedback.getId()).orElseThrow();
-        assertEquals("Revised: Great job overall. Area X is a growth opportunity.", feedbackInDb.getPolishedText());
+        assertEquals(
+                "Revised: Great job overall. Area X is a growth opportunity.",
+                feedbackInDb.getPolishedText());
     }
 
     @Test
@@ -367,17 +413,16 @@ public class ManagerEditIntegrationTest {
         // Given
         var feedback = createFeedback(employee.getId(), coworker.getId(), "Initial text.");
         var coworkerEntity = getAuthenticationHeaders(coworker.getEmail());
-        var updateRequest = ManagerUpdateFeedbackDTO.builder()
-                .polishedText("Illegal Update")
-                .build();
+        var updateRequest =
+                ManagerUpdateFeedbackDTO.builder().polishedText("Illegal Update").build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/feedbacks/" + feedback.getId(),
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/feedbacks/" + feedback.getId(),
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, coworkerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -392,17 +437,15 @@ public class ManagerEditIntegrationTest {
         // Given
         var nonExistentId = "non-existent-feedback-id";
         var managerEntity = getAuthenticationHeaders(manager.getEmail());
-        var updateRequest = ManagerUpdateFeedbackDTO.builder()
-                .polishedText("Test")
-                .build();
+        var updateRequest = ManagerUpdateFeedbackDTO.builder().polishedText("Test").build();
 
         // When
-        var response = restTemplate.exchange(
-                MANAGER_URL + "/feedbacks/" + nonExistentId,
-                HttpMethod.PATCH,
-                new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_URL + "/feedbacks/" + nonExistentId,
+                        HttpMethod.PATCH,
+                        new HttpEntity<>(updateRequest, managerEntity.getHeaders()),
+                        Void.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());

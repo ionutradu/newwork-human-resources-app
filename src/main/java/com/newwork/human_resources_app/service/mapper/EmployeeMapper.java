@@ -7,10 +7,9 @@ import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeRoleDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackDTO;
-import org.mapstruct.Mapper;
-
 import java.util.List;
 import java.util.Set;
+import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
@@ -25,6 +24,6 @@ public interface EmployeeMapper {
 
     EmployeeProfileDTO toEmployeePublicProfileDTO(Employee employee);
 
-    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(Employee employee, List<AbsenceDTO> absences, List<FeedbackDTO> feedbacks);
-
+    EmployeeSensitiveProfileDTO toEmployeeSensitiveProfileDTO(
+            Employee employee, List<AbsenceDTO> absences, List<FeedbackDTO> feedbacks);
 }

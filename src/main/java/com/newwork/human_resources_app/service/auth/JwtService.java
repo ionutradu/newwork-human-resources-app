@@ -4,15 +4,14 @@ import com.newwork.human_resources_app.repository.user.EmployeeRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
@@ -39,7 +38,12 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().getSubject();
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 
     public Set<SimpleGrantedAuthority> extractRoles(String token) {

@@ -1,7 +1,7 @@
 package com.newwork.human_resources_app.web.employees;
 
-import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.service.employee.EmployeeActionsService;
+import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
@@ -28,8 +28,7 @@ public class EmployeeActionsController {
     @PostMapping("/absence")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> requestAbsence(
-            Authentication authentication,
-            @RequestBody @Valid AbsenceRequestDTO dto) {
+            Authentication authentication, @RequestBody @Valid AbsenceRequestDTO dto) {
         var employeeId = (String) authentication.getPrincipal();
 
         employeeActionsService.requestAbsence(employeeId, dto);

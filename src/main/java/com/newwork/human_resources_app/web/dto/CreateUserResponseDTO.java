@@ -3,19 +3,15 @@ package com.newwork.human_resources_app.web.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserResponseDTO {
-    @Email
-    @NotBlank
-    private String email;
-    @NotEmpty
-    private Set<EmployeeRoleDTO> roles;
+    @Email @NotBlank private String email;
+    @NotEmpty private Set<EmployeeRoleDTO> roles;
 }

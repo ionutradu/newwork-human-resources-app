@@ -1,7 +1,6 @@
 package com.newwork.human_resources_app.service.employee;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
-import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
 import com.newwork.human_resources_app.repository.absences.AbsenceStatus;
 import com.newwork.human_resources_app.repository.feedback.Feedback;
 import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
@@ -12,12 +11,11 @@ import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
 import com.newwork.human_resources_app.web.exceptions.NotFoundException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Slf4j
 @Service
@@ -34,9 +32,10 @@ public class EmployeeActionsService {
     private final AbsenceMapper absenceMapper;
 
     @Transactional
-    public Feedback leaveFeedback(String targetEmployeeId, String reviewerEmployeeId, FeedbackRequestDTO dto) {
+    public Feedback leaveFeedback(
+            String targetEmployeeId, String reviewerEmployeeId, FeedbackRequestDTO dto) {
         var polishedText = aiService.polishFeedback(dto.getText());
-        
+
         var feedback = new Feedback();
         feedback.setTargetEmployeeId(targetEmployeeId);
         feedback.setReviewerEmployeeId(reviewerEmployeeId);
@@ -45,7 +44,8 @@ public class EmployeeActionsService {
 
         var savedFeedback = feedbackRepository.save(feedback);
 
-        kafkaEventProducerService.sendFeedbackAddedEvent(reviewerEmployeeId, targetEmployeeId, savedFeedback.getId());
+        kafkaEventProducerService.sendFeedbackAddedEvent(
+                reviewerEmployeeId, targetEmployeeId, savedFeedback.getId());
 
         return savedFeedback;
     }
@@ -58,26 +58,34 @@ public class EmployeeActionsService {
     }
 
     @Transactional
-    public void processAbsenceRequest(String absenceId, String managerId, AbsenceActionRequestDTO requestDTO) {
-        var absence = absenceRepository.findById(absenceId)
-                .orElseThrow(() -> new NotFoundException("Absence Request not found with ID: " + absenceId));
+    public void processAbsenceRequest(
+            String absenceId, String managerId, AbsenceActionRequestDTO requestDTO) {
+        var absence =
+                absenceRepository
+                        .findById(absenceId)
+                        .orElseThrow(
+                                () ->
+                                        new NotFoundException(
+                                                "Absence Request not found with ID: " + absenceId));
 
         if (absence.getStatus() != AbsenceStatus.PENDING) {
             log.error("Absence %s not in 'PENDING' status".formatted(absenceId));
             return;
         }
 
-        var newStatus = switch (requestDTO.action()) {
-            case APPROVE -> AbsenceStatus.APPROVED;
-            case REJECT -> AbsenceStatus.REJECTED;
-        };
+        var newStatus =
+                switch (requestDTO.action()) {
+                    case APPROVE -> AbsenceStatus.APPROVED;
+                    case REJECT -> AbsenceStatus.REJECTED;
+                };
 
         absence.setStatus(newStatus);
-         absence.setProcessedBy(managerId);
-         absence.setProcessingDate(Instant.now());
+        absence.setProcessedBy(managerId);
+        absence.setProcessingDate(Instant.now());
 
         absenceRepository.save(absence);
 
-        kafkaEventProducerService.sendAbsenceUpdatedEvent(absence.getEmployeeId(), absence.getId(), newStatus, managerId);
+        kafkaEventProducerService.sendAbsenceUpdatedEvent(
+                absence.getEmployeeId(), absence.getId(), newStatus, managerId);
     }
 }

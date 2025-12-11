@@ -7,12 +7,11 @@ import jakarta.validation.ConstraintValidatorContext;
 public class TimeframeValidator implements ConstraintValidator<ValidTimeframe, Timeframe> {
 
     @Override
-    public void initialize(ValidTimeframe constraintAnnotation) {
-    }
+    public void initialize(ValidTimeframe constraintAnnotation) {}
 
     @Override
     public boolean isValid(Timeframe dto, ConstraintValidatorContext context) {
-        
+
         var startDate = dto.getStartDate();
         var endDate = dto.getEndDate();
 

@@ -8,5 +8,4 @@ import org.mapstruct.Mapper;
 public interface FeedbackMapper {
 
     FeedbackDTO toDTO(Feedback source);
-
 }

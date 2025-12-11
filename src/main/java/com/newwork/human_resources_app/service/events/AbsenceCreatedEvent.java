@@ -8,9 +8,13 @@ public record AbsenceCreatedEvent(
         Instant timestamp,
         String absenceId,
         String employeeId,
-        AbsenceStatus status 
-) {
+        AbsenceStatus status) {
     public AbsenceCreatedEvent(String absenceId, String employeeId) {
-        this(EventType.ABSENCE_CREATED, Instant.now(), absenceId, employeeId, AbsenceStatus.PENDING);
+        this(
+                EventType.ABSENCE_CREATED,
+                Instant.now(),
+                absenceId,
+                employeeId,
+                AbsenceStatus.PENDING);
     }
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record HFChoice(
-    Integer index,
-    HFMessage message,
-    @JsonProperty(value = "finish_reason", isRequired = OptBoolean.FALSE) String finishReason
-) {}
+        Integer index,
+        HFMessage message,
+        @JsonProperty(value = "finish_reason", isRequired = OptBoolean.FALSE)
+                String finishReason) {}

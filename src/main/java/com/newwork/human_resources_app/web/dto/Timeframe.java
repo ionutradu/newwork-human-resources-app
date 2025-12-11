@@ -7,5 +7,4 @@ public interface Timeframe {
     LocalDate getStartDate();
 
     LocalDate getEndDate();
-
 }

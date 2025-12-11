@@ -27,7 +27,8 @@ public class ManagerEditController {
     private final ManagerEditService managerEditService;
 
     @PatchMapping("/employees/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable String id, @RequestBody @Valid ManagerUpdateEmployeeDTO request) {
+    public ResponseEntity<Employee> updateEmployee(
+            @PathVariable String id, @RequestBody @Valid ManagerUpdateEmployeeDTO request) {
         var updatedEmployee = managerEditService.updateEmployee(id, request);
         return ResponseEntity.ok(updatedEmployee);
     }
@@ -36,16 +37,16 @@ public class ManagerEditController {
     public ResponseEntity<AbsenceRequest> updateAbsenceRequest(
             @PathVariable String id,
             @RequestBody @Valid ManagerUpdateAbsenceRequestDTO request,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         var managerId = (String) authentication.getPrincipal();
-        
+
         var updatedAbsenceRequest = managerEditService.updateAbsenceRequest(id, request, managerId);
         return ResponseEntity.ok(updatedAbsenceRequest);
     }
 
     @PatchMapping("/feedbacks/{id}")
-    public ResponseEntity<Feedback> updateFeedback(@PathVariable String id, @RequestBody @Valid ManagerUpdateFeedbackDTO request) {
+    public ResponseEntity<Feedback> updateFeedback(
+            @PathVariable String id, @RequestBody @Valid ManagerUpdateFeedbackDTO request) {
         var updatedFeedback = managerEditService.updateFeedback(id, request);
         return ResponseEntity.ok(updatedFeedback);
     }

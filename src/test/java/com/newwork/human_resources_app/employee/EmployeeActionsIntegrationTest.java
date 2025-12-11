@@ -1,5 +1,10 @@
 package com.newwork.human_resources_app.employee;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import com.newwork.human_resources_app.client.hugging_face.HuggingFaceChatClient;
 import com.newwork.human_resources_app.client.hugging_face.dto.HFChatResponse;
 import com.newwork.human_resources_app.client.hugging_face.dto.HFChoice;
@@ -13,6 +18,13 @@ import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,19 +43,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EmployeeActionsIntegrationTest {
@@ -53,28 +52,23 @@ public class EmployeeActionsIntegrationTest {
     private static final String ABSENCE_URL = "/employees/absence";
     private static final String FEEDBACK_URL_TEMPLATE = "/employees/%s/feedback";
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    @Autowired private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private AbsenceRepository absenceRepository;
+    @Autowired private AbsenceRepository absenceRepository;
 
-    @Autowired
-    private FeedbackRepository feedbackRepository;
+    @Autowired private FeedbackRepository feedbackRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private HuggingFaceChatClient huggingFaceChatClient;
+    @MockitoBean private HuggingFaceChatClient huggingFaceChatClient;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
 
-    private static final String AI_POLISHED_TEXT = "Collaboration could be strengthened through more active listening and proactive sharing of ideas during team discussions. (mocked response)";
+    private static final String AI_POLISHED_TEXT =
+            "Collaboration could be strengthened through more active listening and proactive sharing of ideas during team discussions. (mocked response)";
 
     private Map<EmployeeRole, List<Employee>> employeesByRole;
     private Employee coWorker;
@@ -91,18 +85,43 @@ public class EmployeeActionsIntegrationTest {
         absenceRepository.deleteAll();
         feedbackRepository.deleteAll();
 
-        var allEmployees = List.of(
-                createEmployee("manager1@test.com", "Manager", "One", EmployeeRole.MANAGER, "10000.00"),
-                createEmployee("coworker1@test.com", "CoWorker", "One", EmployeeRole.COWORKER, "5000.00"),
-                createEmployee("employee1@test.com", "Employee", "One", EmployeeRole.EMPLOYEE, "3000.00")
-        );
+        var allEmployees =
+                List.of(
+                        createEmployee(
+                                "manager1@test.com",
+                                "Manager",
+                                "One",
+                                EmployeeRole.MANAGER,
+                                "10000.00"),
+                        createEmployee(
+                                "coworker1@test.com",
+                                "CoWorker",
+                                "One",
+                                EmployeeRole.COWORKER,
+                                "5000.00"),
+                        createEmployee(
+                                "employee1@test.com",
+                                "Employee",
+                                "One",
+                                EmployeeRole.EMPLOYEE,
+                                "3000.00"));
 
         employeeRepository.saveAll(allEmployees);
-        employeesByRole = allEmployees.stream().collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
+        employeesByRole =
+                allEmployees.stream()
+                        .collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
         coWorker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
         employee = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
 
-        var mockResponse = new HFChatResponse(UUID.randomUUID().toString(), "chat.completion", 1765365241L, "test-ai-model", List.of(new HFChoice(0, new HFMessage("assistant", AI_POLISHED_TEXT), "stop")));
+        var mockResponse =
+                new HFChatResponse(
+                        UUID.randomUUID().toString(),
+                        "chat.completion",
+                        1765365241L,
+                        "test-ai-model",
+                        List.of(
+                                new HFChoice(
+                                        0, new HFMessage("assistant", AI_POLISHED_TEXT), "stop")));
         given(huggingFaceChatClient.generateChatCompletion(any())).willReturn(mockResponse);
     }
 
@@ -122,12 +141,12 @@ public class EmployeeActionsIntegrationTest {
         assertEquals(0, absenceRepository.count());
 
         // When calling the absence API
-        var response = restTemplate.exchange(
-                ABSENCE_URL,
-                HttpMethod.POST,
-                new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        ABSENCE_URL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
+                        Void.class);
 
         // Then absence is accepted
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -158,12 +177,12 @@ public class EmployeeActionsIntegrationTest {
         assertEquals(0, feedbackRepository.count());
 
         // When calling the feedback API
-        var response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
+                        Void.class);
 
         // Then feedback is accepted
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -177,7 +196,6 @@ public class EmployeeActionsIntegrationTest {
         assertEquals(AI_POLISHED_TEXT, savedFeedback.getPolishedText());
     }
 
-
     private HttpEntity<HttpHeaders> getAuthenticationHeaders(String email) {
         var token = authenticateAndGetToken(email);
         var headers = new HttpHeaders();
@@ -185,7 +203,8 @@ public class EmployeeActionsIntegrationTest {
         return new HttpEntity<>(headers);
     }
 
-    private Employee createEmployee(String email, String firstName, String lastName, EmployeeRole role, String salary) {
+    private Employee createEmployee(
+            String email, String firstName, String lastName, EmployeeRole role, String salary) {
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)

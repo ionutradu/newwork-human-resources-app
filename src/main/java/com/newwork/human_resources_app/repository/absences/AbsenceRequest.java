@@ -2,15 +2,14 @@ package com.newwork.human_resources_app.repository.absences;
 
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import jakarta.validation.constraints.Size;
+import java.time.Instant;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.Instant;
-import java.time.LocalDate;
 
 @Data
 @Builder
@@ -19,9 +18,8 @@ import java.time.LocalDate;
 @Document("absence_requests")
 public class AbsenceRequest {
 
-    @Id
-    private String id;
-    
+    @Id private String id;
+
     private String employeeId;
     private String processedBy;
 

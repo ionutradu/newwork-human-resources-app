@@ -9,9 +9,18 @@ public record AbsenceStatusUpdatedEvent(
         String absenceId,
         String employeeId,
         AbsenceStatus newStatus,
-        String processedByManagerId
-) {
-    public AbsenceStatusUpdatedEvent(String absenceId, String employeeId, AbsenceStatus newStatus, String processedByManagerId) {
-        this(EventType.ABSENCE_STATUS_UPDATED, Instant.now(), absenceId, employeeId, newStatus, processedByManagerId);
+        String processedByManagerId) {
+    public AbsenceStatusUpdatedEvent(
+            String absenceId,
+            String employeeId,
+            AbsenceStatus newStatus,
+            String processedByManagerId) {
+        this(
+                EventType.ABSENCE_STATUS_UPDATED,
+                Instant.now(),
+                absenceId,
+                employeeId,
+                newStatus,
+                processedByManagerId);
     }
 }

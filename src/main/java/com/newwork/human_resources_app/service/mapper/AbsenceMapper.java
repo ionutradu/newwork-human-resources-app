@@ -11,5 +11,4 @@ public interface AbsenceMapper {
     AbsenceRequest toEntity(AbsenceRequestDTO source, String employeeId);
 
     AbsenceDTO toDTO(AbsenceRequest source);
-
 }

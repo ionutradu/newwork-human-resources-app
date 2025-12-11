@@ -7,8 +7,7 @@ public record FeedbackAddedEvent(
         Instant timestamp,
         String feedbackId,
         String reviewerId,
-        String targetEmployeeId
-) {
+        String targetEmployeeId) {
     public FeedbackAddedEvent(String feedbackId, String reviewerId, String targetEmployeeId) {
         this(EventType.FEEDBACK_ADDED, Instant.now(), feedbackId, reviewerId, targetEmployeeId);
     }

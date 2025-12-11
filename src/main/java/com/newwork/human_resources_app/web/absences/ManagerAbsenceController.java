@@ -25,7 +25,7 @@ public class ManagerAbsenceController {
             @Valid @RequestBody AbsenceActionRequestDTO requestDTO) {
 
         var managerId = (String) authentication.getPrincipal();
-        
+
         employeeActionsService.processAbsenceRequest(requestId, managerId, requestDTO);
     }
 }

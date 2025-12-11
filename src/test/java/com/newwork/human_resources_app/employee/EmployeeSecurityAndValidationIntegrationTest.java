@@ -1,5 +1,13 @@
 package com.newwork.human_resources_app.employee;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.newwork.human_resources_app.client.hugging_face.HuggingFaceChatClient;
 import com.newwork.human_resources_app.client.hugging_face.dto.HFChatResponse;
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
@@ -12,30 +20,8 @@ import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
-import com.newwork.human_resources_app.web.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
 import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -43,14 +29,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -62,23 +57,17 @@ public class EmployeeSecurityAndValidationIntegrationTest {
     private static final String ABSENCE_URL = "/employees/absence";
     private static final String FEEDBACK_URL_TEMPLATE = "/employees/%s/feedback";
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    @Autowired private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private AbsenceRepository absenceRepository;
+    @Autowired private AbsenceRepository absenceRepository;
 
-    @Autowired
-    private FeedbackRepository feedbackRepository;
+    @Autowired private FeedbackRepository feedbackRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
 
-    @MockitoBean
-    private HuggingFaceChatClient huggingFaceChatClient;
+    @MockitoBean private HuggingFaceChatClient huggingFaceChatClient;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:8.0");
@@ -99,20 +88,51 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         absenceRepository.deleteAll();
         feedbackRepository.deleteAll();
 
-        var allEmployees = List.of(
-                createEmployee("manager1@test.com", "Manager", "One", EmployeeRole.MANAGER, "10000.00"),
-                createEmployee("coworker1@test.com", "CoWorker", "One", EmployeeRole.COWORKER, "5000.00"),
-                createEmployee("employee1@test.com", "Employee", "One", EmployeeRole.EMPLOYEE, "3000.00")
-        );
+        var allEmployees =
+                List.of(
+                        createEmployee(
+                                "manager1@test.com",
+                                "Manager",
+                                "One",
+                                EmployeeRole.MANAGER,
+                                "10000.00"),
+                        createEmployee(
+                                "coworker1@test.com",
+                                "CoWorker",
+                                "One",
+                                EmployeeRole.COWORKER,
+                                "5000.00"),
+                        createEmployee(
+                                "employee1@test.com",
+                                "Employee",
+                                "One",
+                                EmployeeRole.EMPLOYEE,
+                                "3000.00"));
 
         employeeRepository.saveAll(allEmployees);
-        employeesByRole = allEmployees.stream().collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
+        employeesByRole =
+                allEmployees.stream()
+                        .collect(Collectors.groupingBy(e -> e.getRoles().iterator().next()));
         manager = employeesByRole.get(EmployeeRole.MANAGER).get(0);
         coWorker = employeesByRole.get(EmployeeRole.COWORKER).get(0);
         employee = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
 
         // Mock AI success response for any test that might call it
-        var mockSuccessResponse = new HFChatResponse(UUID.randomUUID().toString(), "chat.completion", 1L, "test-ai-model", List.of(new com.newwork.human_resources_app.client.hugging_face.dto.HFChoice(0, new com.newwork.human_resources_app.client.hugging_face.dto.HFMessage("assistant", "Collaboration could be strengthened."), "stop")));
+        var mockSuccessResponse =
+                new HFChatResponse(
+                        UUID.randomUUID().toString(),
+                        "chat.completion",
+                        1L,
+                        "test-ai-model",
+                        List.of(
+                                new com.newwork.human_resources_app.client.hugging_face.dto
+                                        .HFChoice(
+                                        0,
+                                        new com.newwork.human_resources_app.client.hugging_face.dto
+                                                .HFMessage(
+                                                "assistant",
+                                                "Collaboration could be strengthened."),
+                                        "stop")));
         given(huggingFaceChatClient.generateChatCompletion(any())).willReturn(mockSuccessResponse);
     }
 
@@ -123,12 +143,9 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         var headers = new HttpHeaders();
 
         // When attempting to access a secured endpoint (e.g., list all employees)
-        var response = restTemplate.exchange(
-                EMPLOYEES_URL,
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        EMPLOYEES_URL, HttpMethod.GET, new HttpEntity<>(headers), Void.class);
 
         // Then status is Unauthorized
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
@@ -142,12 +159,13 @@ public class EmployeeSecurityAndValidationIntegrationTest {
 
         // When attempting to access public profile list
         // CORECTAT: Verific?m direct statusul r?spunsului
-        var response = restTemplate.exchange(
-                EMPLOYEES_URL + "/public",
-                HttpMethod.GET,
-                entity,
-                String.class // Folosim String.class pentru a citi eroarea 403
-        );
+        var response =
+                restTemplate.exchange(
+                        EMPLOYEES_URL + "/public",
+                        HttpMethod.GET,
+                        entity,
+                        String.class // Folosim String.class pentru a citi eroarea 403
+                        );
 
         // Then response status is Forbidden
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Expected status 200 Ok.");
@@ -161,12 +179,12 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         var ownId = employee.getId();
 
         // When calling the sensitive endpoint for own id
-        var sensitiveResponse = restTemplate.exchange(
-                EMPLOYEES_URL + "/" + ownId,
-                HttpMethod.GET,
-                entity,
-                EmployeeSensitiveProfileDTO.class
-        );
+        var sensitiveResponse =
+                restTemplate.exchange(
+                        EMPLOYEES_URL + "/" + ownId,
+                        HttpMethod.GET,
+                        entity,
+                        EmployeeSensitiveProfileDTO.class);
 
         // Then status is OK and sensitive data is present
         assertEquals(HttpStatus.OK, sensitiveResponse.getStatusCode());
@@ -182,15 +200,13 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         var colleagueId = coWorker.getId();
 
         // When calling the sensitive endpoint for a colleague's id
-        var response = restTemplate.exchange(
-                EMPLOYEES_URL + "/" + colleagueId,
-                HttpMethod.GET,
-                entity,
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        EMPLOYEES_URL + "/" + colleagueId, HttpMethod.GET, entity, Void.class);
 
         // Then status is Forbidden
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
+        assertEquals(
+                HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
     }
 
     @Test
@@ -201,15 +217,16 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         var colleagueId = coWorker.getId();
 
         // When calling the public endpoint for a colleague's id
-        var response = restTemplate.exchange(
-                EMPLOYEES_URL + "/public/" + colleagueId,
-                HttpMethod.GET,
-                entity,
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        EMPLOYEES_URL + "/public/" + colleagueId,
+                        HttpMethod.GET,
+                        entity,
+                        Void.class);
 
         // Then status is Forbidden
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
+        assertEquals(
+                HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
     }
 
     @Test
@@ -225,15 +242,16 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, feedbackRepository.count());
 
         // When attempting to leave feedback
-        var response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
+                        Void.class);
 
         // Then status is Forbidden and no feedbacks are saved in database
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
+        assertEquals(
+                HttpStatus.FORBIDDEN, response.getStatusCode(), "Expected status 403 Forbidden.");
         assertEquals(0, feedbackRepository.count());
     }
 
@@ -252,15 +270,18 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, absenceRepository.count());
 
         // When calling the API
-        var response = restTemplate.exchange(
-                ABSENCE_URL,
-                HttpMethod.POST,
-                new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
-                String.class
-        );
+        var response =
+                restTemplate.exchange(
+                        ABSENCE_URL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
+                        String.class);
 
         // Then response status is Bad Request
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Expected status 400 Bad Request (Validation failed).");
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Expected status 400 Bad Request (Validation failed).");
         assertEquals(0, absenceRepository.count());
     }
 
@@ -279,15 +300,18 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, absenceRepository.count());
 
         // When calling the API
-        var response = restTemplate.exchange(
-                ABSENCE_URL,
-                HttpMethod.POST,
-                new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
-                String.class
-        );
+        var response =
+                restTemplate.exchange(
+                        ABSENCE_URL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(absenceRequestDTO, entity.getHeaders()),
+                        String.class);
 
         // Then response status is Bad Request
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Expected status 400 Bad Request (Validation failed).");
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Expected status 400 Bad Request (Validation failed).");
         assertEquals(0, absenceRepository.count());
     }
 
@@ -306,25 +330,30 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, feedbackRepository.count());
 
         // When calling the feedback API
-        var response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
-                String.class
-        );
+        var response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
+                        String.class);
 
         // Then response status is Bad Request
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode(), "Expected status 400 Bad Request (Validation failed).");
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                response.getStatusCode(),
+                "Expected status 400 Bad Request (Validation failed).");
         assertEquals(0, feedbackRepository.count());
     }
 
     @Test
-    @DisplayName("Feedback polishing will be retried 5 times, then it will fallback to original text if AI service is not available")
+    @DisplayName(
+            "Feedback polishing will be retried 5 times, then it will fallback to original text if AI service is not available")
     void testFeedbackIsSavedEvenIfAiServiceFails() {
         // Given original feedback
         var originalFeedback = "I think you should improve your collaboration skills.";
         // Given AI service will throw a runtime exception
-        given(huggingFaceChatClient.generateChatCompletion(any())).willThrow(new RuntimeException("Mocked AI Service Failure"));
+        given(huggingFaceChatClient.generateChatCompletion(any()))
+                .willThrow(new RuntimeException("Mocked AI Service Failure"));
 
         var entity = getAuthenticationHeaders(coWorker.getEmail());
         var targetEmployeeId = employee.getId();
@@ -333,12 +362,12 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(0, feedbackRepository.count());
 
         // When leaving a feedback
-        var response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        new HttpEntity<>(feedbackRequestDTO, entity.getHeaders()),
+                        Void.class);
 
         // Then feedback is accepted and stored in database
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
@@ -348,7 +377,8 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         assertEquals(originalFeedback, savedFeedback.getOriginalText());
 
         // Then feedback text fallbacks to original text
-        assertTrue(savedFeedback.getPolishedText().contains(originalFeedback),
+        assertTrue(
+                savedFeedback.getPolishedText().contains(originalFeedback),
                 "Polished text should contain the original text if AI fails.");
 
         // Verify the AI client was called 5 times before throwing the exception
@@ -359,16 +389,18 @@ public class EmployeeSecurityAndValidationIntegrationTest {
     @DisplayName("Unauthenticated user is unauthorized (401)")
     void testUnauthenticatedUserIsUnauthorized() {
         // Given an unauthenticated request to a secure endpoint
-        var absenceRequestDTO = new AbsenceRequestDTO(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2), "Test reason");
+        var absenceRequestDTO =
+                new AbsenceRequestDTO(
+                        LocalDate.now().plusDays(1), LocalDate.now().plusDays(2), "Test reason");
         var headers = new HttpHeaders();
 
         // When calling the absence API
-        var response = restTemplate.exchange(
-                ABSENCE_URL,
-                HttpMethod.POST,
-                new HttpEntity<>(absenceRequestDTO, headers),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        ABSENCE_URL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(absenceRequestDTO, headers),
+                        Void.class);
 
         // Then response is Unauthorized (401)
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
@@ -379,19 +411,25 @@ public class EmployeeSecurityAndValidationIntegrationTest {
     void testEmployeeCannotAccessManagerEndpoint() {
         // Given an employee token
         var employeeToken = authenticateAndGetToken(employee.getEmail());
-        var entity = new HttpEntity<>(new HttpHeaders() {{ setBearerAuth(employeeToken); }});
+        var entity =
+                new HttpEntity<>(
+                        new HttpHeaders() {
+                            {
+                                setBearerAuth(employeeToken);
+                            }
+                        });
 
         // Assuming a Manager-only endpoint for processing absence:
         var MANAGER_PROCESS_ABSENCE_URL = "/manager/absences/some-id/process";
 
         // When employee tries to access manager endpoint
         var processDTO = new AbsenceActionRequestDTO(AbsenceActionDTO.APPROVE);
-        var response = restTemplate.exchange(
-                MANAGER_PROCESS_ABSENCE_URL,
-                HttpMethod.POST,
-                new HttpEntity<>(processDTO, entity.getHeaders()),
-                Void.class
-        );
+        var response =
+                restTemplate.exchange(
+                        MANAGER_PROCESS_ABSENCE_URL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(processDTO, entity.getHeaders()),
+                        Void.class);
 
         // Then response is Forbidden (403)
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -404,7 +442,8 @@ public class EmployeeSecurityAndValidationIntegrationTest {
         return new HttpEntity<>(headers);
     }
 
-    private Employee createEmployee(String email, String firstName, String lastName, EmployeeRole role, String salary) {
+    private Employee createEmployee(
+            String email, String firstName, String lastName, EmployeeRole role, String salary) {
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
                 .email(email)

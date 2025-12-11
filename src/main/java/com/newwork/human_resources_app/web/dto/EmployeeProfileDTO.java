@@ -13,5 +13,4 @@ public class EmployeeProfileDTO {
     private String email;
     private String firstName;
     private String lastName;
-
 }

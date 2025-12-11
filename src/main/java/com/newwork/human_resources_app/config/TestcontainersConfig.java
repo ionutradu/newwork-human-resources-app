@@ -12,9 +12,7 @@ public class TestcontainersConfig {
 
     @Bean
     public MongoDBContainer mongoDBContainer() {
-        var container = new MongoDBContainer(MONGO_IMAGE)
-                .withExposedPorts(27017)
-                .withReuse(true);
+        var container = new MongoDBContainer(MONGO_IMAGE).withExposedPorts(27017).withReuse(true);
 
         container.start();
         return container;

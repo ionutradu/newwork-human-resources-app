@@ -11,19 +11,17 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.retry.annotation.EnableRetry;
 
 @SpringBootApplication(
-		exclude = {
-				DataSourceAutoConfiguration.class,
-				HibernateJpaAutoConfiguration.class,
-		}
-)
+        exclude = {
+            DataSourceAutoConfiguration.class,
+            HibernateJpaAutoConfiguration.class,
+        })
 @EnableFeignClients
 @EnableRetry
 @EnableMongock
 @EnableConfigurationProperties(HuggingFaceProperties.class)
 public class HumanResourcesAppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HumanResourcesAppApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(HumanResourcesAppApplication.class, args);
+    }
 }

@@ -14,5 +14,4 @@ public class FeedbackRequestDTO {
 
     @Size(max = MAX_FEEDBACK_LENGTH)
     private String text;
-
 }

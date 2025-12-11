@@ -2,6 +2,8 @@ package com.newwork.human_resources_app.config;
 
 import com.newwork.human_resources_app.repository.user.EmployeeRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +25,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity
@@ -36,13 +34,16 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return id -> {
-            var employee = employeeRepository.findById(id)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            var employee =
+                    employeeRepository
+                            .findById(id)
+                            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             return User.withUsername(employee.getId())
-                    .authorities(employee.getRoles().stream()
-                            .map(r -> new SimpleGrantedAuthority(r.name()))
-                            .collect(Collectors.toSet()))
+                    .authorities(
+                            employee.getRoles().stream()
+                                    .map(r -> new SimpleGrantedAuthority(r.name()))
+                                    .collect(Collectors.toSet()))
                     .build();
         };
     }
@@ -60,26 +61,39 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) 
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter)
+            throws Exception {
         http.cors()
                 .and()
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .csrf()
+                .disable()
+                .authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers("/auth/login")
+                                        .permitAll()
+                                        .requestMatchers("/error")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint((req, res, excep) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"))
-                    .accessDeniedHandler((req, res, excep) -> res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden"))
-                );
+                .exceptionHandling(
+                        ex ->
+                                ex.authenticationEntryPoint(
+                                                (req, res, excep) ->
+                                                        res.sendError(
+                                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                                "Unauthorized"))
+                                        .accessDeniedHandler(
+                                                (req, res, excep) ->
+                                                        res.sendError(
+                                                                HttpServletResponse.SC_FORBIDDEN,
+                                                                "Forbidden")));
 
         return http.build();
     }
@@ -96,5 +110,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

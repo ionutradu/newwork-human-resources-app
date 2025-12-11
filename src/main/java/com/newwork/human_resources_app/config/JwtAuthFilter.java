@@ -5,14 +5,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Log4j2
 @Component
@@ -25,9 +24,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws IOException, ServletException {
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
         var authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -35,9 +34,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             try {
                 var username = jwtService.extractUsername(token);
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (username != null
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
                     var auth =
-                            new UsernamePasswordAuthenticationToken(username, null, jwtService.extractRoles(token));
+                            new UsernamePasswordAuthenticationToken(
+                                    username, null, jwtService.extractRoles(token));
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             } catch (JwtException e) {

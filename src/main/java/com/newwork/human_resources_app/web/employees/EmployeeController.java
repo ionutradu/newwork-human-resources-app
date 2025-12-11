@@ -1,7 +1,7 @@
 package com.newwork.human_resources_app.web.employees;
 
-import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.service.employee.EmployeeActionsService;
+import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;
@@ -31,15 +31,20 @@ public class EmployeeController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<CreateUserResponseDTO> createUser(@RequestBody @Valid CreateUserRequestDTO request) {
-        var user = employeeService.createEmployee(request.getEmail(), request.getPassword(), request.getRoles());
-        return ResponseEntity.ok(new CreateUserResponseDTO(user.getEmail(), employeeMapper.toRoleDTOs(user.getRoles())));
+    public ResponseEntity<CreateUserResponseDTO> createUser(
+            @RequestBody @Valid CreateUserRequestDTO request) {
+        var user =
+                employeeService.createEmployee(
+                        request.getEmail(), request.getPassword(), request.getRoles());
+        return ResponseEntity.ok(
+                new CreateUserResponseDTO(
+                        user.getEmail(), employeeMapper.toRoleDTOs(user.getRoles())));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('MANAGER') or #id == authentication.principal")
-    public EmployeeProfileDTO getSensitiveUserProfile(Authentication authentication,
-                                                               @PathVariable String id) {
+    public EmployeeProfileDTO getSensitiveUserProfile(
+            Authentication authentication, @PathVariable String id) {
         var authorities = authentication.getAuthorities();
         var requesterId = (String) authentication.getPrincipal();
         return employeeService.findById(id, requesterId, authorities);
@@ -47,7 +52,8 @@ public class EmployeeController {
 
     @GetMapping("/public/{id}")
     @PreAuthorize("hasAnyAuthority('COWORKER', 'MANAGER') or #id == authentication.principal")
-    public EmployeeProfileDTO getPublicUserProfile(Authentication authentication, @PathVariable String id) {
+    public EmployeeProfileDTO getPublicUserProfile(
+            Authentication authentication, @PathVariable String id) {
         var authorities = authentication.getAuthorities();
         var requesterId = (String) authentication.getPrincipal();
         return employeeService.findById(id, requesterId, authorities);
@@ -60,5 +66,4 @@ public class EmployeeController {
         var userDTOs = users.map(employeeMapper::toEmployeePublicProfileDTO);
         return ResponseEntity.ok(userDTOs);
     }
-
 }

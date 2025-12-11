@@ -1,11 +1,9 @@
 package com.newwork.human_resources_app.web.dto;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

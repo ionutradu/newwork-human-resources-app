@@ -1,6 +1,8 @@
 package com.newwork.human_resources_app.repository.user;
 
 import jakarta.validation.constraints.Email;
+import java.math.BigDecimal;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,17 +11,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
-import java.util.Set;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("employees")
 public class Employee {
-    @Id
-    private String id;
+    @Id private String id;
 
     @Email
     @Indexed(unique = true)

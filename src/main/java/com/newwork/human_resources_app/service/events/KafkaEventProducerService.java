@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-// This is a dummy service, show-casing that events could be sent via Kafka to a communication-service.
-// This communication-service (another microservice) would consume Kafka events and send notifications (email, SMS or other type) to interested parties.
+// This is a dummy service, show-casing that events could be sent via Kafka to a
+// communication-service.
+// This communication-service (another microservice) would consume Kafka events and send
+// notifications (email, SMS or other type) to interested parties.
 
 @Slf4j
 @Service
@@ -18,22 +20,40 @@ public class KafkaEventProducerService {
 
     public void sendAbsenceCreatedEvent(String employeeId, String absenceId) {
         var event = new AbsenceCreatedEvent(absenceId, employeeId);
-        
-        log.info("--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
-                event.eventType().name(), event.getClass().getSimpleName(), TOPIC_ABSENCE, event);
+
+        log.info(
+                "--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
+                event.eventType().name(),
+                event.getClass().getSimpleName(),
+                TOPIC_ABSENCE,
+                event);
     }
 
-    public void sendAbsenceUpdatedEvent(String employeeId, String absenceId, AbsenceStatus newStatus, String processedByManagerId) {
-        var event = new AbsenceStatusUpdatedEvent(absenceId, employeeId, newStatus, processedByManagerId);
-        
-        log.info("--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
-                event.eventType().name(), event.getClass().getSimpleName(), TOPIC_ABSENCE, event);
+    public void sendAbsenceUpdatedEvent(
+            String employeeId,
+            String absenceId,
+            AbsenceStatus newStatus,
+            String processedByManagerId) {
+        var event =
+                new AbsenceStatusUpdatedEvent(
+                        absenceId, employeeId, newStatus, processedByManagerId);
+
+        log.info(
+                "--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
+                event.eventType().name(),
+                event.getClass().getSimpleName(),
+                TOPIC_ABSENCE,
+                event);
     }
 
     public void sendFeedbackAddedEvent(String reviewerId, String targetId, String feedbackId) {
         var event = new FeedbackAddedEvent(feedbackId, reviewerId, targetId);
-        
-        log.info("--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
-                event.eventType().name(), event.getClass().getSimpleName(), TOPIC_FEEDBACK, event);
+
+        log.info(
+                "--- Kafka Event ({}): Sent {} to topic {}. Payload: {}",
+                event.eventType().name(),
+                event.getClass().getSimpleName(),
+                TOPIC_FEEDBACK,
+                event);
     }
 }
