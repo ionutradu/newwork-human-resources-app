@@ -27,29 +27,8 @@ The frontend is a lightweight interface built with **Angular** to demonstrate th
 * Angular CLI
 * **Docker** (required for the backend's Testcontainers to start MongoDB locally)
 
-### 3.2. Backend Startup
 
-1.  Navigate to the `backend` directory.
-
-    ```bash
-    cd backend
-    ```
-
-2.  Build the project and run tests. This process ensures all dependencies are resolved and the necessary Docker containers are pulled and validated via Testcontainers.
-
-    ```bash
-    mvn clean install
-    ```
-
-3.  Run the Spring Boot application.
-
-    ```bash
-    mvn spring-boot:run
-    ```
-
-    The backend service will be available at `http://localhost:8080`.
-
-### 3.3. Frontend Startup
+### 3.2. Frontend Startup
 
 1.  Navigate to the `frontend` directory.
 
