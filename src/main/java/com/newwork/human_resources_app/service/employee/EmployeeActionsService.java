@@ -1,4 +1,4 @@
-package com.newwork.human_resources_app.service.feedback;
+package com.newwork.human_resources_app.service.employee;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
 import com.newwork.human_resources_app.repository.absences.AbsenceRequest;
@@ -6,6 +6,7 @@ import com.newwork.human_resources_app.repository.absences.AbsenceStatus;
 import com.newwork.human_resources_app.repository.feedback.Feedback;
 import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
 import com.newwork.human_resources_app.service.events.KafkaEventProducerService;
+import com.newwork.human_resources_app.service.feedback.FeedbackAiService;
 import com.newwork.human_resources_app.service.mapper.AbsenceMapper;
 import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;

@@ -1,7 +1,7 @@
 package com.newwork.human_resources_app.web.auth;
 
 import com.newwork.human_resources_app.service.auth.JwtService;
-import com.newwork.human_resources_app.service.auth.EmployeeService;
+import com.newwork.human_resources_app.service.employee.EmployeeService;
 import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
 import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
 import com.newwork.human_resources_app.web.exceptions.BadCredentialsException;

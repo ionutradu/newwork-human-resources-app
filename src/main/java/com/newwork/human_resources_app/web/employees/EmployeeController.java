@@ -1,7 +1,7 @@
 package com.newwork.human_resources_app.web.employees;
 
-import com.newwork.human_resources_app.service.auth.EmployeeService;
-import com.newwork.human_resources_app.service.feedback.EmployeeActionsService;
+import com.newwork.human_resources_app.service.employee.EmployeeService;
+import com.newwork.human_resources_app.service.employee.EmployeeActionsService;
 import com.newwork.human_resources_app.service.mapper.EmployeeMapper;
 import com.newwork.human_resources_app.web.dto.CreateUserRequestDTO;
 import com.newwork.human_resources_app.web.dto.CreateUserResponseDTO;

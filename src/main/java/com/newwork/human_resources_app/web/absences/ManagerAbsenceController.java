@@ -1,14 +1,12 @@
 package com.newwork.human_resources_app.web.absences;
 
-import com.newwork.human_resources_app.service.feedback.EmployeeActionsService;
+import com.newwork.human_resources_app.service.employee.EmployeeActionsService;
 import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -1,4 +1,4 @@
-package com.newwork.human_resources_app.service.auth;
+package com.newwork.human_resources_app.service.employee;
 
 import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
 import com.newwork.human_resources_app.repository.absences.AbsenceRequest;

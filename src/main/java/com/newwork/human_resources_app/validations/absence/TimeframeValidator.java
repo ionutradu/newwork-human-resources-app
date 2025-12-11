@@ -1,19 +1,17 @@
 package com.newwork.human_resources_app.validations.absence;
 
-import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
+import com.newwork.human_resources_app.web.dto.Timeframe;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.time.LocalDate;
-
-public class AbsenceDatesValidator implements ConstraintValidator<ValidAbsenceDates, AbsenceRequestDTO> {
+public class TimeframeValidator implements ConstraintValidator<ValidTimeframe, Timeframe> {
 
     @Override
-    public void initialize(ValidAbsenceDates constraintAnnotation) {
+    public void initialize(ValidTimeframe constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(AbsenceRequestDTO dto, ConstraintValidatorContext context) {
+    public boolean isValid(Timeframe dto, ConstraintValidatorContext context) {
         
         var startDate = dto.getStartDate();
         var endDate = dto.getEndDate();

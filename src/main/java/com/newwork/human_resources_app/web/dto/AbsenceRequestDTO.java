@@ -1,6 +1,6 @@
 package com.newwork.human_resources_app.web.dto;
 
-import com.newwork.human_resources_app.validations.absence.ValidAbsenceDates;
+import com.newwork.human_resources_app.validations.absence.ValidTimeframe;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ValidAbsenceDates
+@ValidTimeframe
 public class AbsenceRequestDTO {
 
     public static final int MAX_REASON_LENGTH = 1000;
