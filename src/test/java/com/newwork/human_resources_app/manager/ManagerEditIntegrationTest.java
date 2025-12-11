@@ -100,8 +100,6 @@ public class ManagerEditIntegrationTest {
         employee = employeesByRole.get(EmployeeRole.EMPLOYEE).get(0);
     }
 
-    // --- Utilit??i ---
-
     private Employee createEmployee(String email, String firstName, String lastName, Set<EmployeeRole> roles, String salary) {
         return Employee.builder()
                 .id(UUID.randomUUID().toString())
@@ -155,8 +153,6 @@ public class ManagerEditIntegrationTest {
 
         return response.getBody().getToken();
     }
-
-    // --- Teste pentru PATCH /manager/employees/{id} ---
 
     @Test
     @DisplayName("Manager can update employee details")
