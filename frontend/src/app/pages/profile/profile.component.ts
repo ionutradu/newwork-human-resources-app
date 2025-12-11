@@ -93,7 +93,7 @@ export class ProfileComponent implements OnInit {
   }
 
   submitFeedback() {
-    const dto: FeedbackRequestDTO = { content: this.feedbackContent };
+    const dto: FeedbackRequestDTO = { text: this.feedbackContent };
     this.apiService.leaveFeedback(this.profileId, dto).subscribe({
       next: () => {
         this.feedbackMessage = 'Feedback submitted successfully!';

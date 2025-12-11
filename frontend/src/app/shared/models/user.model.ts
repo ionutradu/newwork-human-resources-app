@@ -2,6 +2,8 @@ export type EmployeeRole = 'MANAGER' | 'COWORKER' | 'EMPLOYEE';
 
 export interface AuthResponse {
   token: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface User {
@@ -52,7 +54,7 @@ export interface AbsenceRequestDTO {
 }
 
 export interface FeedbackRequestDTO {
-  content: string;
+  text: string;
 }
 
 export interface ManagerUpdateEmployeeDTO {

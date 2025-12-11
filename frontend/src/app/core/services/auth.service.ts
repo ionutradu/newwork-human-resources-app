@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, last } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 import { AuthResponse, User, EmployeeRole } from '../../shared/models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly TOKEN_KEY = 'hr_app_token';
+  private readonly FIRST_NAME_KEY = 'hr_app_first_name';
+  private readonly LAST_NAME_KEY = 'hr_app_last_name';
   private userSubject = new BehaviorSubject<User | null>(this.getUserFromToken());
 
   public user$ = this.userSubject.asObservable();
@@ -15,8 +17,10 @@ export class AuthService {
 
   private http = inject(HttpClient);
 
-  private saveToken(token: string): void {
+  private saveToLocalStorage(token: string, firstName: string, lastName: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.FIRST_NAME_KEY, firstName);
+    localStorage.setItem(this.LAST_NAME_KEY, lastName);
     this.userSubject.next(this.getUserFromToken());
   }
 
@@ -26,6 +30,8 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.FIRST_NAME_KEY);
+    localStorage.removeItem(this.LAST_NAME_KEY);
     this.userSubject.next(null);
   }
 
@@ -62,7 +68,7 @@ export class AuthService {
   login(email: string, password: string): Observable<AuthResponse> {
     const dto = { email, password };
     return this.http.post<AuthResponse>(`${this.BASE_URL}/login`, dto).pipe(
-            tap(response => this.saveToken(response.token)),
+            tap(response => this.saveToLocalStorage(response.token, response.firstName, response.lastName)),
             catchError(error => {
     return of({ token: '' } as AuthResponse);
       })

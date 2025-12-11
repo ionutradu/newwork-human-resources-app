@@ -20,7 +20,7 @@ public class AbsenceRequestDTO implements Timeframe {
     public static final int MAX_REASON_LENGTH = 1000;
 
     @NotNull
-    @FutureOrPresent(message = "Start date cannot be in the past")
+    @FutureOrPresent(message = "cannot be in the past")
     private LocalDate startDate;
 
     @NotNull private LocalDate endDate;
