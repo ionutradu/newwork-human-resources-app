@@ -9,6 +9,8 @@ import com.newwork.human_resources_app.domain.feedback.repository.Feedback;
 import com.newwork.human_resources_app.domain.feedback.repository.FeedbackRepository;
 import com.newwork.human_resources_app.shared.dto.EmployeeProfileDTO;
 import com.newwork.human_resources_app.shared.dto.EmployeeSensitiveProfileDTO;
+import com.newwork.human_resources_app.shared.dto.FeedbackDTO;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceDTO;
 import com.newwork.human_resources_app.shared.exception.NotFoundException;
 import com.newwork.human_resources_app.shared.mapper.AbsenceMapper;
 import com.newwork.human_resources_app.shared.mapper.EmployeeMapper;
@@ -19,22 +21,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EmployeeServiceTest {
@@ -133,8 +140,8 @@ class EmployeeServiceTest {
         when(feedbackRepository.findAllByTargetEmployeeId(EMPLOYEE_ID)).thenReturn(feedbacks);
 
         when(employeeRepository.findAllById(any())).thenReturn(Collections.emptyList());
-        when(absenceMapper.toDTO(any(AbsenceRequest.class))).thenReturn(any());
-        when(feedbackMapper.toDTO(any(Feedback.class), any())).thenReturn(any());
+        when(absenceMapper.toDTO(any())).thenReturn(new AbsenceDTO());
+        when(feedbackMapper.toDTO(any(), any())).thenReturn(new FeedbackDTO());
         when(employeeMapper.toEmployeeSensitiveProfileDTO(any(), any(), any())).thenReturn(sensitiveProfileDTO);
 
         // Act
@@ -162,8 +169,8 @@ class EmployeeServiceTest {
         when(feedbackRepository.findAllByTargetEmployeeId(EMPLOYEE_ID)).thenReturn(feedbacks);
 
         when(employeeRepository.findAllById(any())).thenReturn(Collections.emptyList());
-        when(absenceMapper.toDTO(any(AbsenceRequest.class))).thenReturn(any());
-        when(feedbackMapper.toDTO(any(Feedback.class), any())).thenReturn(any());
+        when(absenceMapper.toDTO(any())).thenReturn(new AbsenceDTO());
+        when(feedbackMapper.toDTO(any(), any())).thenReturn(new FeedbackDTO());
         when(employeeMapper.toEmployeeSensitiveProfileDTO(any(), any(), any())).thenReturn(sensitiveProfileDTO);
 
         // Act
