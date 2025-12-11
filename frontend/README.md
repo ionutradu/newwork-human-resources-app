@@ -1,59 +1,72 @@
-# HrFrontend
+## Frontend Overview (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.3.
+The frontend is a lightweight interface built with **Angular** to demonstrate the capabilities of the backend API.
 
-## Development server
+### Features & Implementation
 
-To start a local development server, run:
+* **Role-Based Interface**: The application features a functional login and illustrates the distinct views and actions available to each security role (Manager, Coworker, Employee).
+* **User Management Views**: Includes pages for listing and viewing employee profiles.
+* **Development**: The initial boilerplate was quickly scaffolded using **GitHub Copilot** to focus development efforts on backend service implementation and API integration.
 
-```bash
-ng serve
-```
+-----
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Future Improvements
+* **Design and Responsiveness**: Perform a complete overhaul of the CSS and design to modernize the interface. Implement Responsive Web Design techniques to ensure optimal user experience across all devices (desktop, tablet, mobile).
 
-## Code scaffolding
+* **State Management**: Introduce a robust state management pattern (e.g., NgRx or a centralized service layer) for coherent management of application state (authentication data, resource lists).
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+* **Internationalization (i18n)**: Add multi-language support to make the application scalable for international HR contexts.
 
-```bash
-ng generate component component-name
-```
+## 3\. Quick Start Guide
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 3.1. Prerequisites
 
-```bash
-ng generate --help
-```
+* Java Development Kit (JDK) 17 or later
+* Apache Maven
+* Node.js and npm (LTS recommended for Angular)
+* Angular CLI
+* **Docker** (required for the backend's Testcontainers to start MongoDB locally)
 
-## Building
+### 3.2. Backend Startup
 
-To build the project run:
+1.  Navigate to the `backend` directory.
 
-```bash
-ng build
-```
+    ```bash
+    cd backend
+    ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+2.  Build the project and run tests. This process ensures all dependencies are resolved and the necessary Docker containers are pulled and validated via Testcontainers.
 
-## Running unit tests
+    ```bash
+    mvn clean install
+    ```
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+3.  Run the Spring Boot application.
 
-```bash
-ng test
-```
+    ```bash
+    mvn spring-boot:run
+    ```
 
-## Running end-to-end tests
+    The backend service will be available at `http://localhost:8080`.
 
-For end-to-end (e2e) testing, run:
+### 3.3. Frontend Startup
 
-```bash
-ng e2e
-```
+1.  Navigate to the `frontend` directory.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+    ```bash
+    cd frontend
+    ```
 
-## Additional Resources
+2.  Install project dependencies.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+    ```bash
+    npm install
+    ```
+
+3.  Start the Angular development server.
+
+    ```bash
+    ng serve --open
+    ```
+
+    The application will open automatically in your default browser, typically at `http://localhost:4200`. Use the credentials from the **Default Application Users** table to log in.
