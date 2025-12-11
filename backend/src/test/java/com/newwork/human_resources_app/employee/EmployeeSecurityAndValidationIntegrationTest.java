@@ -8,20 +8,20 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.newwork.human_resources_app.client.hugging_face.HuggingFaceChatClient;
-import com.newwork.human_resources_app.client.hugging_face.dto.HFChatResponse;
-import com.newwork.human_resources_app.repository.absences.AbsenceRepository;
-import com.newwork.human_resources_app.repository.feedback.FeedbackRepository;
-import com.newwork.human_resources_app.repository.user.Employee;
-import com.newwork.human_resources_app.repository.user.EmployeeRepository;
-import com.newwork.human_resources_app.repository.user.EmployeeRole;
-import com.newwork.human_resources_app.web.dto.AbsenceActionDTO;
-import com.newwork.human_resources_app.web.dto.AbsenceActionRequestDTO;
-import com.newwork.human_resources_app.web.dto.AbsenceRequestDTO;
-import com.newwork.human_resources_app.web.dto.AuthRequestDTO;
-import com.newwork.human_resources_app.web.dto.AuthResponseDTO;
-import com.newwork.human_resources_app.web.dto.EmployeeSensitiveProfileDTO;
-import com.newwork.human_resources_app.web.dto.FeedbackRequestDTO;
+import com.newwork.human_resources_app.core.client.hugging_face.HuggingFaceChatClient;
+import com.newwork.human_resources_app.core.client.hugging_face.dto.HFChatResponse;
+import com.newwork.human_resources_app.domain.absence.repository.AbsenceRepository;
+import com.newwork.human_resources_app.domain.employee.repository.Employee;
+import com.newwork.human_resources_app.domain.employee.repository.EmployeeRepository;
+import com.newwork.human_resources_app.domain.employee.repository.EmployeeRole;
+import com.newwork.human_resources_app.domain.feedback.repository.FeedbackRepository;
+import com.newwork.human_resources_app.shared.dto.EmployeeSensitiveProfileDTO;
+import com.newwork.human_resources_app.shared.dto.FeedbackRequestDTO;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceActionDTO;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceActionRequestDTO;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceRequestDTO;
+import com.newwork.human_resources_app.shared.dto.auth.AuthRequestDTO;
+import com.newwork.human_resources_app.shared.dto.auth.AuthResponseDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -125,11 +125,11 @@ public class EmployeeSecurityAndValidationIntegrationTest {
                         1L,
                         "test-ai-model",
                         List.of(
-                                new com.newwork.human_resources_app.client.hugging_face.dto
+                                new com.newwork.human_resources_app.core.client.hugging_face.dto
                                         .HFChoice(
                                         0,
-                                        new com.newwork.human_resources_app.client.hugging_face.dto
-                                                .HFMessage(
+                                        new com.newwork.human_resources_app.core.client.hugging_face
+                                                .dto.HFMessage(
                                                 "assistant",
                                                 "Collaboration could be strengthened."),
                                         "stop")));

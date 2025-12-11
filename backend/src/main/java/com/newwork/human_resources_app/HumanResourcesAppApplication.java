@@ -1,6 +1,6 @@
 package com.newwork.human_resources_app;
 
-import com.newwork.human_resources_app.config.HuggingFaceProperties;
+import com.newwork.human_resources_app.core.config.HuggingFaceProperties;
 import io.mongock.runner.springboot.EnableMongock;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

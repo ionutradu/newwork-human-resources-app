@@ -24,4 +24,4 @@ feign:
 
 mongock:
   enabled: true
-  change-logs-scan-package: com.newwork.human_resources_app.database_changelogs
+  change-logs-scan-package: com.newwork.human_resources_app.infrastructure.db_changelogs
