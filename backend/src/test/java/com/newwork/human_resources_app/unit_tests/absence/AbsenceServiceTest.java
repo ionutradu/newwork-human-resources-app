@@ -4,8 +4,9 @@ import com.newwork.human_resources_app.domain.absence.repository.AbsenceReposito
 import com.newwork.human_resources_app.domain.absence.repository.AbsenceRequest;
 import com.newwork.human_resources_app.domain.absence.service.AbsenceService;
 import com.newwork.human_resources_app.domain.employee.repository.Employee;
-import com.newwork.human_resources_app.domain.employee.repository.EmployeeRepository;
 import com.newwork.human_resources_app.event.kafka.KafkaEventProducerService;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceActionDTO;
+import com.newwork.human_resources_app.shared.dto.absence.AbsenceActionRequestDTO;
 import com.newwork.human_resources_app.shared.dto.absence.AbsenceRequestDTO;
 import com.newwork.human_resources_app.shared.exception.NotFoundException;
 import com.newwork.human_resources_app.shared.mapper.AbsenceMapper;
@@ -23,7 +24,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,8 +33,6 @@ class AbsenceServiceTest {
 
     @Mock
     private AbsenceRepository absenceRepository;
-    @Mock
-    private EmployeeRepository employeeRepository;
     @Mock
     private AbsenceMapper absenceMapper;
     @Mock
@@ -73,6 +71,19 @@ class AbsenceServiceTest {
 
         verify(absenceRepository, times(1)).save(absenceRequest);
         verify(kafkaEventProducerService, times(1)).sendAbsenceCreatedEvent(EMPLOYEE_ID, absenceRequest.getId());
+    }
+
+    @Test
+    @DisplayName("Process absence request throws NotFoundException when request does not exist")
+    void processAbsenceRequest_NotFound() {
+        var nonExistentId = "nonexistent";
+        when(absenceRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        var actionDTO = new AbsenceActionRequestDTO(AbsenceActionDTO.APPROVE);
+
+        assertThrows(
+                NotFoundException.class,
+                () -> absenceService.processAbsenceRequest(nonExistentId, "manager123", actionDTO));
     }
 
 }
