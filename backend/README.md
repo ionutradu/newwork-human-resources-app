@@ -19,7 +19,8 @@ The backend is a Spring Boot application designed using modern engineering princ
 * **Retry Mechanism**: The service implements a simple retry mechanism for the external `polishFeedback` service call. This is currently set up for rapid local testing. In a production environment, this would be replaced by a robust, asynchronous solution using an **Exponential Backoff Policy** or a Circuit Breaker pattern (e.g., Resilience4j) to handle transient API failures gracefully and prevent resource exhaustion.
 * **Database Migration**: **Mongock** is employed for managing non-SQL database changes and script-based initial data migration.
 * **Hardcoded secrets**: Secrets are hardcoded in `application.yaml` for easing local development and testing. They must be moved to an external secured storage provider.
-* **Password Hashing:** Passwords are securely hashed using **BCryptPasswordEncoder**, an industry-standard algorithm that utilizes adaptive hashing (salting and stretching) to prevent brute-force attacks.
+* **Password Hashing**: Passwords are securely hashed using **BCryptPasswordEncoder**, an industry-standard algorithm that utilizes adaptive hashing (salting and stretching) to prevent brute-force attacks.
+* **Manager role**: Managers can see all data, but they can only edit data that makes sense to be edited.
 
 ### Technology Stack
 
