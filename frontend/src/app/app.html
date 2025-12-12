@@ -1,11 +1,33 @@
-<div class="app-header">
-	<div class="app-title">HR App</div>
-	<div class="app-actions">
-		<label>{{ getFirstName() }} {{ getLastName() }} </label>
-		<button *ngIf="isAuthenticated()" class="logout-btn" (click)="logout()">Logout</button>
+<header class="app-header">
+	<div class="brand-block">
+		<div class="brand-icon">HR</div>
+		<div class="brand-copy">
+			<p class="brand-title">HR App</p>
+			<p class="brand-subtitle">People &amp; Culture Hub</p>
+		</div>
 	</div>
-</div>
 
-<div class="app-body">
+	<ng-container *ngIf="isAuthenticated(); else guestState">
+		<div class="session-pill">
+			<div class="avatar-chip">{{ getInitials() }}</div>
+			<div class="user-copy">
+				<p class="user-name">{{ getFirstName() }} {{ getLastName() }}</p>
+				<span class="user-caption">Connected</span>
+			</div>
+			<button class="logout-btn" (click)="logout()">Logout</button>
+		</div>
+	</ng-container>
+
+	<ng-template #guestState>
+		<div class="session-pill session-pill--guest">
+			<div class="user-copy">
+				<p class="user-name">Guest</p>
+				<span class="user-caption">Please log in</span>
+			</div>
+		</div>
+	</ng-template>
+</header>
+
+<main class="app-body">
 	<router-outlet />
-</div>
+</main>

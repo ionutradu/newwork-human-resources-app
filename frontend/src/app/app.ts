@@ -27,6 +27,13 @@ export class AppComponent {
     return localStorage.getItem('hr_app_last_name');
   }
 
+  getInitials(): string {
+    const first = this.getFirstName() ?? '';
+    const last = this.getLastName() ?? '';
+    const initials = `${first.charAt(0)}${last.charAt(0)}`.trim();
+    return initials || 'HR';
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }

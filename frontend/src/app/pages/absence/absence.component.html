@@ -1,16 +1,29 @@
-<form (ngSubmit)="requestAbsence()">
-  <h2>Request Absence</h2>
-  <label>Start Date: <input type="date" [(ngModel)]="absence.startDate" name="startDate" required></label>
-  <label>End Date: <input type="date" [(ngModel)]="absence.endDate" name="endDate" required></label>
-  <label>Reason: <textarea [(ngModel)]="absence.reason" name="reason" required></textarea></label>
-  <button type="submit">Submit Request</button>
-  <p style="color: green;" *ngIf="message">{{ message }}</p>
-  <div *ngIf="errors && (errors | keyvalue).length">
-    <ul class="error-list">
-      <li *ngFor="let k of (errors | keyvalue)">{{ k.key }}: {{ k.value }}</li>
-    </ul>
-  </div>
-  <div style="margin-top:12px;">
-    <button *ngIf="currentUserId" [routerLink]="['/profile', currentUserId]" class="request-absence-btn">Back to my profile</button>
-  </div>
-</form>
+<div class="page-shell absence-page">
+  <section class="panel absence-card">
+    <header class="absence-head">
+      <p class="eyebrow">Wellness</p>
+      <h2>Request Absence</h2>
+      <p class="muted">Choose your dates and leave a short note for your manager.</p>
+    </header>
+
+    <form class="absence-form" (ngSubmit)="requestAbsence()">
+      <label>Start Date
+        <input type="date" [(ngModel)]="absence.startDate" name="startDate" required>
+      </label>
+      <label>End Date
+        <input type="date" [(ngModel)]="absence.endDate" name="endDate" required>
+      </label>
+      <label>Reason
+        <textarea [(ngModel)]="absence.reason" name="reason" required></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-btn">Submit request</button>
+      </div>
+
+      <div class="back-to-profile" *ngIf="currentUserId">
+        <button [routerLink]="['/profile', currentUserId]" class="request-absence-btn">Back to my profile</button>
+      </div>
+    </form>
+  </section>
+</div>

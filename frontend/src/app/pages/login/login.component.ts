@@ -1,13 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   email = '';
@@ -26,7 +28,7 @@ export class LoginComponent {
           if (user) {
             const roles = user.roles || [];
             if (roles.includes('MANAGER') || roles.includes('COWORKER')) {
-              this.router.navigate(['/']);
+              this.router.navigate(['/employees']);
             } else {
               // default for EMPLOYEE: go to own profile
               this.router.navigate([`/profile/${user.id}`]);

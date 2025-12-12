@@ -1,10 +1,11 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AbsenceRequestDTO } from '../../shared/models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-absence',
@@ -15,31 +16,33 @@ import { AbsenceRequestDTO } from '../../shared/models/user.model';
 })
 export class AbsenceComponent {
   absence: AbsenceRequestDTO = { startDate: '', endDate: '', reason: '' };
-  message: string = '';
   // validation errors returned by backend (field -> message)
   errors: Record<string,string> = {};
-  private cdr = inject(ChangeDetectorRef);
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private toastr = inject(ToastrService);
   currentUserId: string = this.authService.getUserFromToken()?.id || '';
 
   requestAbsence() {
-    this.message = '';
     this.errors = {};
     this.apiService.requestAbsence(this.absence).subscribe({
       next: () => {
-        this.message = 'Absence request submitted successfully!';
-        this.cdr.detectChanges();
+        this.toastr.success('Absence request submitted successfully!');
+        this.absence = { startDate: '', endDate: '', reason: '' };
       },
       error: (err: any) => {
         // If backend returns validation errors in body as { field: message }
         if (err && err.status === 400 && err.error && typeof err.error === 'object') {
           this.errors = err.error;
-          this.message = '';
+          const details = Object.entries(this.errors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join('<br>');
+          this.toastr.error(details || 'Please fix the highlighted fields.', 'Validation errors', {
+            enableHtml: true
+          });
         } else {
-          this.message = 'Failed to submit absence request.';
+          this.toastr.error('Failed to submit absence request.');
         }
-        this.cdr.detectChanges();
       }
     });
   }

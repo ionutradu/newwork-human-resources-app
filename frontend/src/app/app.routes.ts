@@ -7,9 +7,9 @@ import { AbsenceComponent } from './pages/absence/absence.component';
 import { ManagerComponent } from './pages/manager/manager.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: '', component: LoginComponent },
   {
-    path: '',
+    path: 'employees',
     component: DashboardComponent,
     canActivate: [roleGuard],
     data: { roles: ['COWORKER', 'MANAGER'] }

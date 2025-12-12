@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   employees: EmployeeProfile[] = [];
@@ -29,5 +30,12 @@ export class DashboardComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getInitials(profile: EmployeeProfile): string {
+    const first = profile?.firstName?.charAt(0) ?? '';
+    const last = profile?.lastName?.charAt(0) ?? '';
+    const initials = `${first}${last}`.trim();
+    return initials || '•';
   }
 }

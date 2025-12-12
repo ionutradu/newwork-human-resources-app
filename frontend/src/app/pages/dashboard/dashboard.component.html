@@ -1,10 +1,59 @@
-<h2>Public Employee Profiles</h2>
-<div *ngIf="loading">Loading...</div>
-<ul *ngIf="!loading && employees.length > 0">
-  <li *ngFor="let emp of employees">
-    <a [routerLink]="['/profile', emp.id]">
-      {{ emp.firstName }} {{ emp.lastName }} ({{ emp.email }})
-    </a>
-  </li>
-</ul>
-<div *ngIf="!loading && employees.length === 0">No public profiles found.</div>
+<section class="dashboard">
+  <header class="dashboard-hero">
+    <div>
+      <p class="hero-kicker">People Directory</p>
+      <h1>Public employee profiles</h1>
+      <p class="hero-copy">
+        Discover teams, reach out faster, and celebrate the people that make the organization thrive.
+      </p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span>Profiles live</span>
+        <strong>{{ employees.length }}</strong>
+      </div>
+      <div class="stat">
+        <span>Status</span>
+        <strong class="status-pill">Synced</strong>
+      </div>
+    </div>
+  </header>
+
+  <section class="dashboard-panel" *ngIf="loading">
+    <div class="loading-indicator" aria-live="polite">
+      <span></span><span></span><span></span>
+      <p>Syncing profiles…</p>
+    </div>
+  </section>
+
+  <section class="dashboard-panel" *ngIf="!loading && employees.length > 0">
+    <div class="panel-header">
+      <div>
+        <p class="panel-kicker">Directory</p>
+        <h2>Meet the team</h2>
+      </div>
+      <p class="panel-meta">Tap any card to open the public profile.</p>
+    </div>
+
+    <div class="employee-grid">
+      <a
+        class="employee-card"
+        *ngFor="let emp of employees"
+        [routerLink]="['/profile', emp.id]"
+      >
+        <div class="avatar" aria-hidden="true">{{ getInitials(emp) }}</div>
+        <div class="details">
+          <p class="name">{{ emp.firstName }} {{ emp.lastName }}</p>
+          <p class="email">{{ emp.email }}</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="dashboard-panel empty" *ngIf="!loading && employees.length === 0">
+    <div>
+      <h3>No public profiles yet</h3>
+      <p>Once employees opt in, they will display here for quick access.</p>
+    </div>
+  </section>
+</section>

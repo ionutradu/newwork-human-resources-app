@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { EmployeeProfile, EmployeeSensitiveProfile, FeedbackRequestDTO, ManagerUpdateEmployeeDTO, EmployeeRole, AbsenceDTO, FeedbackDTO } from '../../shared/models/user.model';
+import { EmployeeProfile, EmployeeSensitiveProfile, FeedbackRequestDTO, ManagerUpdateEmployeeDTO, EmployeeRole, AbsenceDTO, FeedbackDTO, ManagerUpdateAbsenceRequestDTO, ManagerUpdateFeedbackDTO } from '../../shared/models/user.model';
 import { switchMap, tap } from 'rxjs/operators';
 import { of, Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-profile',
@@ -23,6 +24,7 @@ export class ProfileComponent implements OnInit {
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
+  private toastr = inject(ToastrService);
 
   isManager = false;
   isCoworker = false;
@@ -31,8 +33,6 @@ export class ProfileComponent implements OnInit {
   isSensitiveAccess = false;
   loading = true;
   feedbackContent = '';
-  feedbackMessage = '';
-  editMessage = '';
   showEditForm = false;
   editDto: ManagerUpdateEmployeeDTO = {};
   editRolesRaw = '';
@@ -61,7 +61,7 @@ export class ProfileComponent implements OnInit {
       console.log('loadProfile result:', p);
       this.profile = p as any;
       this.loading = false;
-        this.absences = (this.profile as any).absences || [];
+        this.absences = this.prepareAbsences(((this.profile as any).absences) || []);
         this.feedbacks = (this.profile as any).feedbacks || [];
         if (this.profile) {
             const p: any = this.profile;
@@ -93,48 +93,79 @@ export class ProfileComponent implements OnInit {
   }
 
   submitFeedback() {
+    if (!this.feedbackContent.trim()) {
+      this.toastr.info('Add a few words before submitting feedback.');
+      return;
+    }
     const dto: FeedbackRequestDTO = { text: this.feedbackContent };
     this.apiService.leaveFeedback(this.profileId, dto).subscribe({
       next: () => {
-        this.feedbackMessage = 'Feedback submitted successfully!';
         this.feedbackContent = '';
+        this.toastr.success('Feedback submitted successfully!');
         // refresh profile to show new feedbacks
         this.cdr.detectChanges();
       },
       error: () => {
-        this.feedbackMessage = 'Failed to submit feedback.';
+        this.toastr.error('Failed to submit feedback.');
         this.cdr.detectChanges();
       }
     });
   }
 
-  updateAbsenceStatus(abs: AbsenceDTO) {
+  saveAbsenceChanges(abs: AbsenceDTO) {
     if (!abs || !abs.id) return;
-    const dto = { status: abs.status } as any;
-    this.apiService.updateAbsenceRequest(abs.id, dto).subscribe({
-      next: () => {
-        // keep UI in sync; optionally show a message
-        console.log('Absence status updated', abs.id, abs.status);
+    const payload: ManagerUpdateAbsenceRequestDTO = {
+      status: abs.status,
+      startDate: abs.startDate,
+      endDate: abs.endDate,
+      reason: abs.reason
+    };
+
+    this.apiService.updateAbsenceRequest(abs.id, payload).subscribe({
+      next: (updated) => {
+        if (updated) {
+          Object.assign(abs, this.prepareAbsence(updated));
+        }
+        this.toastr.success('Absence updated successfully.');
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to update absence', err);
+        this.toastr.error('Could not update absence.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  saveFeedbackEdit(feedback: FeedbackDTO) {
+    if (!feedback?.id) return;
+    const dto: ManagerUpdateFeedbackDTO = { polishedText: feedback.polishedText };
+    this.apiService.updateFeedback(feedback.id, dto).subscribe({
+      next: (updated) => {
+        if (updated) {
+          Object.assign(feedback, updated);
+        }
+        this.toastr.success('Feedback updated successfully.');
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to update feedback', err);
+        this.toastr.error('Could not update feedback.');
         this.cdr.detectChanges();
       }
     });
   }
 
     updateEmployee() {
-      this.editMessage = '';
       this.apiService.updateEmployee(this.profileId, this.editDto).subscribe({
         next: (updatedProfile) => {
           this.profile = updatedProfile;
-          this.editMessage = 'Profile updated successfully!';
+          this.toastr.success('Profile updated successfully!');
           this.showEditForm = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.editMessage = 'Failed to update profile.';
+          this.toastr.error('Failed to update profile.');
           this.cdr.detectChanges();
         }
       });
@@ -155,25 +186,10 @@ export class ProfileComponent implements OnInit {
 
   // Format a Java LocalDate represented as [year, month, day] or {year,month,day} or ISO date string
   formatLocalDate(value: any): string {
-    if (!value) return '';
+    const date = this.coerceDate(value);
+    if (!date) return '';
     const pad = (n: number) => String(n).padStart(2, '0');
-    let year: number | undefined;
-    let month: number | undefined;
-    let day: number | undefined;
-    if (Array.isArray(value) && value.length >= 3) {
-      year = Number(value[0]); month = Number(value[1]); day = Number(value[2]);
-    } else if (typeof value === 'object' && value !== null && ('year' in value)) {
-      year = Number((value as any).year); month = Number((value as any).month); day = Number((value as any).day);
-    } else if (typeof value === 'string' || typeof value === 'number') {
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) {
-        year = d.getFullYear(); month = d.getMonth() + 1; day = d.getDate();
-      }
-    }
-    if (year && month && day) {
-      return `${pad(day)}.${pad(month)}.${year}`;
-    }
-    return '';
+    return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
   }
 
   // Format a Java Instant (ISO string or epoch) to `dd.MM.yyyy HH:mm` local time
@@ -199,5 +215,40 @@ export class ProfileComponent implements OnInit {
     const hours = pad(d.getHours());
     const mins = pad(d.getMinutes());
     return `${day}.${month}.${year} ${hours}:${mins}`;
+  }
+
+  private prepareAbsences(absences: AbsenceDTO[]): AbsenceDTO[] {
+    return absences.map(abs => this.prepareAbsence(abs));
+  }
+
+  private prepareAbsence(absence: AbsenceDTO): AbsenceDTO {
+    return {
+      ...absence,
+      startDate: this.normalizeDateInput(absence.startDate),
+      endDate: this.normalizeDateInput(absence.endDate),
+      reason: absence.reason || ''
+    };
+  }
+
+  private normalizeDateInput(value: any): string {
+    const date = this.coerceDate(value);
+    if (!date) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  }
+
+  private coerceDate(value: any): Date | null {
+    if (!value) return null;
+    if (Array.isArray(value) && value.length >= 3) {
+      const [y, m, d] = value;
+      const date = new Date(Number(y), Number(m) - 1, Number(d));
+      return isNaN(date.getTime()) ? null : date;
+    }
+    if (typeof value === 'object' && value !== null && ('year' in value)) {
+      const date = new Date(Number(value.year), Number((value as any).month) - 1, Number((value as any).day));
+      return isNaN(date.getTime()) ? null : date;
+    }
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? null : date;
   }
 }

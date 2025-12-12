@@ -1,7 +1,38 @@
-<form (ngSubmit)="login()">
-  <h2>Login</h2>
-  <input type="email" [(ngModel)]="email" name="email" placeholder="Email (e.g. manager-token)" required>
-  <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
-  <button type="submit">Log In</button>
-  <p style="color:red">{{ error }}</p>
-</form>
+<section class="login-view">
+  <div class="login-hero">
+    <p class="hero-kicker">Human Resources Platform</p>
+    <h1>Sign in to orchestrate people operations with clarity.</h1>
+    <p class="hero-copy">
+      Centralize approvals, track absences, and surface workforce insights from a single, secure console.
+    </p>
+  </div>
+
+  <div class="login-card">
+    <header class="card-header">
+      <div>
+        <p class="card-kicker">Welcome back</p>
+        <h2>Access your workspace</h2>
+      </div>
+      <span class="status-pill">Live</span>
+    </header>
+
+    <form class="login-form" (ngSubmit)="login()" novalidate>
+      <label class="field">
+        <span>Email</span>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="email@app.com" required>
+      </label>
+
+      <label class="field">
+        <span>Password</span>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" required>
+      </label>
+
+      <div class="actions">
+        <button type="submit" class="primary">Log in</button>
+      </div>
+
+      <p class="form-error" *ngIf="error" aria-live="assertive">{{ error }}</p>
+      <p class="form-hint">Use the role-based tokens shared in the onboarding email.</p>
+    </form>
+  </div>
+</section>

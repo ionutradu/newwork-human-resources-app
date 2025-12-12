@@ -1,15 +1,152 @@
-/* Absence form styling */
-form{max-width:720px;margin:18px auto;padding:18px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.06);font-family:Arial,Helvetica,sans-serif}
-form h2{margin:0 0 12px;font-size:20px}
-form label{display:block;margin-bottom:12px;color:#333;font-size:14px}
-form input[type="date"], form textarea{width:100%;padding:10px;border:1px solid #e2e6ef;border-radius:6px;font-size:14px}
-form textarea{min-height:180px;resize:vertical}
-form button[type="submit"]{background:#0d6efd;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer}
-form p{margin-top:10px}
+:host {
+	display: block;
+}
 
-/* Request absence button styling (used on profile page) */
-.request-absence-btn{background:#198754;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer}
-.request-absence-btn:hover{opacity:.95}
+.absence-page {
+	padding-bottom: 40px;
+}
 
-.error-list{margin-top:10px;color:#b00020}
-.error-list li{margin:6px 0}
+.absence-card {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+	border: 1px solid var(--border-soft);
+	border-radius: var(--radius-lg);
+	padding: 32px;
+}
+
+.absence-head {
+	border-bottom: 1px solid var(--border-soft);
+	padding-bottom: 18px;
+	margin-bottom: 10px;
+}
+
+.absence-head h2 {
+	margin: 4px 0 6px;
+	font-size: 26px;
+}
+
+.absence-head .muted {
+	color: var(--text-muted);
+	margin: 0;
+}
+
+.absence-form {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.absence-form label {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: 14px;
+	color: var(--text-muted);
+}
+
+.absence-form input,
+.absence-form textarea {
+	padding: 12px 14px;
+	border: 1px solid var(--border-soft);
+	border-radius: 12px;
+	font-size: 15px;
+	background: var(--surface-muted);
+	transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.absence-form textarea {
+	min-height: 160px;
+	resize: vertical;
+}
+
+.absence-form input:focus,
+.absence-form textarea:focus {
+	border-color: var(--brand-primary);
+	outline: none;
+	background: #fff;
+	box-shadow: 0 0 0 2px rgba(15, 98, 254, 0.12);
+}
+
+.form-actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.primary-btn {
+	background: var(--brand-primary);
+	color: #fff;
+	border: none;
+	border-radius: 999px;
+	padding: 12px 24px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 14px 32px rgba(15, 66, 140, 0.3);
+	transition: transform 0.2s ease;
+}
+
+.primary-btn:hover {
+	transform: translateY(-1px);
+}
+
+.error-panel {
+	border: 1px solid #ffb7b7;
+	background: #fff3f3;
+	border-radius: var(--radius-md);
+	padding: 12px 16px;
+}
+
+.error-list {
+	margin: 0;
+	padding-left: 18px;
+	color: #c62828;
+}
+
+.error-list li {
+	margin: 6px 0;
+}
+
+.back-to-profile {
+	margin-top: 12px;
+	text-align: right;
+}
+
+.request-absence-btn {
+	background: #1fbf86;
+	color: #fff;
+	border: none;
+	padding: 9px 18px;
+	border-radius: 999px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 12px 26px rgba(31, 191, 134, 0.35);
+	transition: transform 0.2s ease;
+}
+
+.request-absence-btn:hover {
+	transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+	.absence-card {
+		padding: 22px;
+	}
+
+	.form-actions {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.primary-btn,
+	.request-absence-btn {
+		width: 100%;
+		text-align: center;
+	}
+
+	.back-to-profile {
+		text-align: left;
+	}
+}

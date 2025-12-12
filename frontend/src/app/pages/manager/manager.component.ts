@@ -62,7 +62,7 @@ export class ManagerComponent {
 
   patchFeedback() {
       if (!this.patchFeedbackId) return;
-      const dto: ManagerUpdateFeedbackDTO = { content: this.patchFeedbackContent };
+      const dto: ManagerUpdateFeedbackDTO = { polishedText: this.patchFeedbackContent };
       this.apiService.updateFeedback(this.patchFeedbackId, dto).subscribe({
           next: () => {
               this.message = `Feedback ${this.patchFeedbackId} updated successfully.`;

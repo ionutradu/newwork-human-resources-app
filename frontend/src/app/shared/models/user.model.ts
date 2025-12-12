@@ -76,9 +76,12 @@ export interface AbsenceActionRequestDTO {
 }
 
 export interface ManagerUpdateAbsenceRequestDTO {
-  status: 'APPROVED' | 'REJECTED';
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  startDate?: string;
+  endDate?: string;
+  reason?: string;
 }
 
 export interface ManagerUpdateFeedbackDTO {
-  content: string;
+  polishedText: string;
 }

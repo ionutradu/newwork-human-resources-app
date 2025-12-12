@@ -1,113 +1,164 @@
-<div *ngIf="loading" style="padding:12px;border:1px solid #ccc;background:#fff">Loading profile...</div>
+<div class="page-shell profile-page">
+  <div *ngIf="loading" class="info-banner panel">Loading profile...</div>
 
-<div *ngIf="profile" class="profile-main-container">
-  <div class="profile-page-grid">
-  <div class="left-col">
-    <div class="profile-container" style="background:#fff;color:#000;border:1px solid #000;padding:12px;">
-      <form>
-    <h2>Profile</h2>
+  <ng-container *ngIf="profile">
+    <section class="profile-main-container">
+      <!-- Profile section -->
+      <div class="panel">
+        <div class="profile-card">
+          <div class="profile-identity">
+            <div class="profile-avatar">{{ (profile?.firstName || 'U')[0] }}{{ (profile?.lastName || 'N')[0] }}</div>
+            <div>
+              <p class="eyebrow">Employee Profile</p>
+              <h2>{{ profile?.firstName }} {{ profile?.lastName }}</h2>
+              <span class="muted">{{ profile?.email }}</span>
+            </div>
+          </div>
 
-      <label>ID
-        <input type="text" [(ngModel)]="profile.id" name="id" [disabled]="!isManager">
-      </label>
+          <form class="profile-form two-col">
+            <div class="form-col">
+              <label>ID
+                <input type="text" [(ngModel)]="profile.id" name="id" [disabled]="true">
+              </label>
 
-      <label>Email
-        <input type="email" [(ngModel)]="editDto.email" name="email" [disabled]="!isManager">
-      </label>
+              <label>First name
+                <input type="text" [(ngModel)]="editDto.firstName" name="firstName" [disabled]="!isManager">
+              </label>
 
-      <label>First name
-        <input type="text" [(ngModel)]="editDto.firstName" name="firstName" [disabled]="!isManager">
-      </label>
+              <label *ngIf="isSensitiveAccess">Monthly Salary
+                <input type="number" [(ngModel)]="editDto.monthlySalary" name="monthlySalary" [disabled]="!isManager">
+              </label>
+            </div>
+            <div class="form-col">
+              <label>Email
+                <input type="email" [(ngModel)]="editDto.email" name="email" [disabled]="!isManager">
+              </label>
 
-      <label>Last name
-        <input type="text" [(ngModel)]="editDto.lastName" name="lastName" [disabled]="!isManager">
-      </label>
+              <label>Last name
+                <input type="text" [(ngModel)]="editDto.lastName" name="lastName" [disabled]="!isManager">
+              </label>
 
-      <label *ngIf="isSensitiveAccess">Monthly Salary
-        <input type="number" [(ngModel)]="editDto.monthlySalary" name="monthlySalary" [disabled]="!isManager">
-      </label>
+              <label *ngIf="isManager">Roles (comma separated)
+                <input type="text" [(ngModel)]="editRolesRaw" name="roles">
+              </label>
+            </div>
+          </form>
 
-    <label *ngIf="isManager">Roles (comma separated)
-      <input type="text" [(ngModel)]="editRolesRaw" name="roles">
-    </label>
-
-      </form>
-
-      <section *ngIf="isCoworker && !isCurrentUser" class="feedback" style="margin-top:16px;">
-    <h3>Leave feedback</h3>
-    <textarea [(ngModel)]="feedbackContent" placeholder="Your feedback..."></textarea>
-    <button (click)="submitFeedback()">Submit</button>
-    <p class="msg">{{ feedbackMessage }}</p>
-  </section>
-    </div>
-  </div>
-
-  <div class="right-col">
-    <div class="profile-section absences-section" *ngIf="absences.length > 0">
-  <h3>Absences</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Status</th>
-        <th>Reason</th>
-        <th>Start date</th>
-        <th>End date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let a of absences">
-        <td>
-          <ng-container *ngIf="isManager; else statusText">
-            <select [(ngModel)]="a.status" [ngModelOptions]="{standalone:true}" (change)="updateAbsenceStatus(a)">
-              <option value="PENDING">PENDING</option>
-              <option value="APPROVED">APPROVED</option>
-              <option value="REJECTED">REJECTED</option>
-            </select>
-          </ng-container>
-          <ng-template #statusText>{{ a.status }}</ng-template>
-        </td>
-        <td>{{ a.reason || '' }}</td>
-        <td>{{ formatLocalDate(a.startDate) }}</td>
-        <td>{{ formatLocalDate(a.endDate) }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <div *ngIf="isEmployee && isCurrentUser" style="margin-top:12px;">
-        <button routerLink="/absence" class="request-absence-btn">Request absence</button>
+          <section *ngIf="isCoworker && !isCurrentUser" class="feedback-card">
+            <h3>Leave feedback</h3>
+            <textarea [(ngModel)]="feedbackContent" placeholder="Your feedback..."></textarea>
+            <button type="button" class="ghost-btn" (click)="submitFeedback()">Submit</button>
+          </section>
+        </div>
+        <div class="save-parent">
+          <div>
+            <button *ngIf="isManager || isCoworker" class="back-btn" [routerLink]="'/employees'">Back to user listing</button>
+          </div>
+          <div class="save-actions">
+            <button *ngIf="isManager" type="button" class="save-btn" (click)="saveManagerEdit()" [disabled]="!isManager && !isCurrentUser">Save</button>
+          </div>
+        </div>
       </div>
-</div>
 
-<div class="profile-section feedbacks-section" *ngIf="feedbacks.length > 0">
-  <h3>Feedbacks</h3>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>From</th>
-        <th>Date</th>
-        <th>Message</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let f of feedbacks">
-        <td>{{ f.reviewerName }}</td>
-        <td>{{ formatInstant(f.createdAt ) }}</td>
-        <td class="message-cell">{{ f.polishedText }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-  </div>
-  </div>
+      <!-- Absences section -->
+      <div class="panel">
+        <div class="profile-section absences-section" *ngIf="absences.length > 0; else noAbsences">
+          <h3>Absences</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Reason</th>
+                <th>Start date</th>
+                <th>End date</th>
+                <th *ngIf="isManager">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let a of absences; let i = index">
+                <td>
+                  <ng-container *ngIf="isManager; else statusText">
+                    <select [(ngModel)]="a.status" name="abs_status_{{i}}" [ngModelOptions]="{standalone:true}" (change)="saveAbsenceChanges(a)">
+                      <option value="PENDING">PENDING</option>
+                      <option value="APPROVED">APPROVED</option>
+                      <option value="REJECTED">REJECTED</option>
+                    </select>
+                  </ng-container>
+                  <ng-template #statusText>{{ a.status }}</ng-template>
+                </td>
+                <td>
+                  <ng-container *ngIf="isManager; else reasonText">
+                    <textarea [(ngModel)]="a.reason" name="abs_reason_{{i}}" [ngModelOptions]="{standalone:true}"></textarea>
+                  </ng-container>
+                  <ng-template #reasonText>{{ a.reason || '' }}</ng-template>
+                </td>
+                <td>
+                  <ng-container *ngIf="isManager; else startText">
+                    <input type="date" [(ngModel)]="a.startDate" name="abs_start_{{i}}" [ngModelOptions]="{standalone:true}">
+                  </ng-container>
+                  <ng-template #startText>{{ formatLocalDate(a.startDate) }}</ng-template>
+                </td>
+                <td>
+                  <ng-container *ngIf="isManager; else endText">
+                    <input type="date" [(ngModel)]="a.endDate" name="abs_end_{{i}}" [ngModelOptions]="{standalone:true}">
+                  </ng-container>
+                  <ng-template #endText>{{ formatLocalDate(a.endDate) }}</ng-template>
+                </td>
+                <td *ngIf="isManager" class="row-actions">
+                  <button type="button" class="ghost-btn ghost-btn--compact" (click)="saveAbsenceChanges(a)">Save</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="isEmployee && isCurrentUser" class="request-absence-wrapper">
+            <button routerLink="/absence" class="request-absence-btn">Request absence</button>
+          </div>
+        </div>
+        <ng-template #noAbsences>
+          <div class="profile-section">
+            <h3>Absences</h3>
+            <p class="muted">No absences yet.</p>
+          </div>
+        </ng-template>
+      </div>
 
-  <div class="save-parent">
-        <div>
-        <button *ngIf="isManager || isCoworker" class="back-btn" [routerLink]="'/dashboard'">Back to user listing</button>
-    </div>
-
-    <div>
-        <button *ngIf="isManager" type="button" class="save-btn" (click)="saveManagerEdit()" [disabled]="!isManager && !isCurrentUser">Save</button>
-        <span class="save-msg">{{ editMessage }}</span>
-    </div>
-  </div>
-
+      <!-- Feedbacks section -->
+      <div class="panel">
+        <div class="profile-section feedbacks-section" *ngIf="feedbacks.length > 0; else noFeedbacks">
+          <h3>Feedbacks</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>From</th>
+                <th>Date</th>
+                <th>Message</th>
+                <th *ngIf="isManager">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let f of feedbacks; let j = index">
+                <td>{{ f.reviewerName }}</td>
+                <td>{{ formatInstant(f.createdAt ) }}</td>
+                <td class="message-cell">
+                  <ng-container *ngIf="isManager; else feedbackText">
+                    <textarea [(ngModel)]="f.polishedText" name="fb_text_{{j}}" [ngModelOptions]="{standalone:true}"></textarea>
+                  </ng-container>
+                  <ng-template #feedbackText>{{ f.polishedText }}</ng-template>
+                </td>
+                <td *ngIf="isManager" class="row-actions">
+                  <button type="button" class="ghost-btn ghost-btn--compact" (click)="saveFeedbackEdit(f)">Save</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noFeedbacks>
+          <div class="profile-section">
+            <h3>Feedbacks</h3>
+            <p class="muted">No feedback yet.</p>
+          </div>
+        </ng-template>
+      </div>
+    </section>
+  </ng-container>
 </div>

@@ -7,6 +7,7 @@ The frontend is a lightweight interface built with **Angular** to demonstrate th
 * **Role-Based Interface**: The application features a functional login and illustrates the distinct views and actions available to each security role (Manager, Coworker, Employee).
 * **User Management Views**: Includes pages for listing and viewing employee profiles.
 * **Development**: The initial boilerplate was quickly scaffolded using **GitHub Copilot** to focus development efforts on backend service implementation and API integration.
+* **Form validations**: Form validations are missing, so that the backend API / validations can be easily tested.
 
 -----
 
@@ -17,9 +18,11 @@ The frontend is a lightweight interface built with **Angular** to demonstrate th
 
 * **Internationalization (i18n)**: Add multi-language support to make the application scalable for international HR contexts.
 
-## 3\. Quick Start Guide
+* **Form validations**: Form validations can be added, so that frontend and backend are aligned on required fields.
 
-### 3.1. Prerequisites
+## Quick Start Guide
+
+### 1. Prerequisites
 
 * Java Development Kit (JDK) 17 or later
 * Apache Maven
@@ -28,7 +31,7 @@ The frontend is a lightweight interface built with **Angular** to demonstrate th
 * **Docker** (required for the backend's Testcontainers to start MongoDB locally)
 
 
-### 3.2. Frontend Startup
+### 2. Frontend Startup
 
 1.  Navigate to the `frontend` directory.
 
