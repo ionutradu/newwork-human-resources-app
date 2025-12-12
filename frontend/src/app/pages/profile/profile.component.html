@@ -25,6 +25,10 @@
                 <input type="text" [(ngModel)]="editDto.firstName" name="firstName" [disabled]="!isManager">
               </label>
 
+              <label>Last name
+                <input type="text" [(ngModel)]="editDto.lastName" name="lastName" [disabled]="!isManager">
+              </label>
+
               <label *ngIf="isSensitiveAccess">Monthly Salary
                 <input type="number" [(ngModel)]="editDto.monthlySalary" name="monthlySalary" [disabled]="!isManager">
               </label>
@@ -32,10 +36,6 @@
             <div class="form-col">
               <label>Email
                 <input type="email" [(ngModel)]="editDto.email" name="email" [disabled]="!isManager">
-              </label>
-
-              <label>Last name
-                <input type="text" [(ngModel)]="editDto.lastName" name="lastName" [disabled]="!isManager">
               </label>
 
               <label *ngIf="isManager">Roles (comma separated)
