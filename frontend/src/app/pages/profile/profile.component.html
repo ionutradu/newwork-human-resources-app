@@ -7,11 +7,11 @@
       <div class="panel">
         <div class="profile-card">
           <div class="profile-identity">
-            <div class="profile-avatar">{{ (profile?.firstName || 'U')[0] }}{{ (profile?.lastName || 'N')[0] }}</div>
+            <div class="profile-avatar">{{ (profile.firstName || 'U')[0] }}{{ (profile.lastName || 'N')[0] }}</div>
             <div>
               <p class="eyebrow">Employee Profile</p>
-              <h2>{{ profile?.firstName }} {{ profile?.lastName }}</h2>
-              <span class="muted">{{ profile?.email }}</span>
+              <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+              <span class="muted">{{ profile.email }}</span>
             </div>
           </div>
 
